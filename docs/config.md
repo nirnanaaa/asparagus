@@ -50,7 +50,12 @@
   #
   [metrics.cloudwatch]
     enabled = false
+
+    # how often should be reported to cloudwatch
     reporting-interval = 1m
+
+    # reset counters to zero after reporting them
+    reset-counters-after-report = true
 
 [scheduler]
   tick-duration-ms = 1000

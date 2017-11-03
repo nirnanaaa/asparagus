@@ -2,6 +2,7 @@ package metric
 
 import (
 	"github.com/nirnanaaa/asparagus/metric/adapters/cloudwatch"
+	"github.com/nirnanaaa/asparagus/metric/adapters/console"
 	"github.com/nirnanaaa/asparagus/metric/adapters/slack"
 )
 
@@ -14,13 +15,17 @@ const (
 type Config struct {
 	Enabled    bool              `toml:"enable-metrics"`
 	Slack      slack.Config      `toml:"slack"`
+	Console    console.Config    `toml:"console"`
 	Cloudwatch cloudwatch.Config `toml:"cloudwatch"`
 }
 
 // NewConfig builds a new configuration with default values.
 func NewConfig() *Config {
 	return &Config{
-		Enabled: DefaultMetricsEnable,
+		Enabled:    DefaultMetricsEnable,
+		Cloudwatch: cloudwatch.NewConfig(),
+		Slack:      slack.NewConfig(),
+		Console:    console.NewConfig(),
 	}
 }
 

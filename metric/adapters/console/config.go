@@ -1,4 +1,4 @@
-package slack
+package console
 
 import (
 	"time"
@@ -14,8 +14,6 @@ const (
 // Config represents the meta configuration.
 type Config struct {
 	Enabled           bool          `toml:"enabled"`
-	WebookURL         string        `toml:"webook-url"`
-	MessageFormat     string        `toml:"message-format"`
 	ReportingInterval toml.Duration `toml:"reporting-interval"`
 }
 
@@ -27,9 +25,7 @@ func NewConfig() Config {
 	}
 }
 
+// Validate the config
 func (c Config) Validate() error {
-	// if c.BasePath == "" {
-	// 	return errors.New("Meta.BasePath must be specified ([meta] dir)")
-	// }
 	return nil
 }
