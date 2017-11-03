@@ -26,9 +26,12 @@ docker run --rm -ti -e ASPARAGUS_ETCD_REGISTRY_URL=http://etcd:4001 --link etcd:
   | Source Provider | \                                     / | Execution Provider |
   -------------------  \                                   /  ----------------------
                         > - - - Asparagus Scheduler - - - <
-  -------------------  /                                   \  ----------------------
-  | Source Provider | /                                     \ | Execution Provider |
-  -------------------                                         ----------------------
+  -------------------  /                |                  \  ----------------------
+  | Source Provider | /                 |                   \ | Execution Provider |
+  -------------------                   |                     ----------------------
+                                ---------------------
+                                | Metrics Reporting |
+                                ---------------------
 ```
 
 `Source Providers` provide configuration and crontab settings to asparagus.
