@@ -4,11 +4,13 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/ef3bb9a0dbc5b1994a9d/maintainability)](https://codeclimate.com/github/nirnanaaa/asparagus/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/ef3bb9a0dbc5b1994a9d/test_coverage)](https://codeclimate.com/github/nirnanaaa/asparagus/test_coverage)
 
-Simple cron scheudler for distributed systems.
+A simple and pluggable cron scheduler for distributed systems.
 
 # Usage
 
 ```bash
+
+# ETCD Backend
 docker pull nirnanaaa/asparagus
 
 # Optional: Spin up an etcd instance
@@ -16,6 +18,22 @@ docker pull nirnanaaa/asparagus
 
 docker run --rm -ti -e ASPARAGUS_ETCD_REGISTRY_URL=http://etcd:4001 --link etcd:etcd nirnanaaa/asparagus
 ```
+
+# How it works
+
+```
+  -------------------                                         ----------------------
+  | Source Provider | \                                     / | Execution Provider |
+  -------------------  \                                   /  ----------------------
+                        > - - - Asparagus Scheduler - - - <
+  -------------------  /                                   \  ----------------------
+  | Source Provider | /                                     \ | Execution Provider |
+  -------------------                                         ----------------------
+```
+
+`Source Providers` provide configuration and crontab settings to asparagus.
+Asparagus uses the configured `Execution Provider` to execute the actual cronjob
+on the target system.
 
 # Configuration
 
@@ -38,8 +56,12 @@ Alternatively you can use prefixed environment variables for each configuration 
 ```
 ASPARAGUS_<SECTION>_<KEY>=<VALUE>
 ```
+# Crontab/Source providers
 
-## Cronjob configuration
+## local crontab (tbd)
+## SQL (postgres/mysql/sqlite..., tbd)
+
+## ETCD
 
 Each cronjob follows a pre-defined json schema. It uses a regular cron expression for execution:
 
@@ -59,7 +81,7 @@ To see all possible configuration options take a look inside the `scheduler/defi
 
 Those cronjob should be placed inside the configured cronjob folder inside etcd (default: `/cron/Jobs/<name>`)
 
-## Scheduler configuration
+### Scheduler configuration
 The scheduler itself has hot-configuration mode, that can be used to alter tick interval and a jwt secret to sign your requests with (ROADMAP: configureable). Its location can be specified inside the `/cron/Config` (ROADMAP) key inside etcd.
 
 Schema:
@@ -72,7 +94,11 @@ Schema:
 }
 ```
 
-# How it works
+# Execution provider
+
+## HTTP
+## Kafka (tbd)
+## SQS (tbd)
 
 
 # License
