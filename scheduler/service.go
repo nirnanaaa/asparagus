@@ -80,7 +80,7 @@ func (s *Service) Stop() error {
 func (s *Service) InitConfig() error {
 	watcherOpts := client.WatcherOptions{AfterIndex: 0}
 	go func() {
-		w := s.ETCD.KAPI.Watcher("/cron/Config", &watcherOpts)
+		w := s.ETCD.KAPI.Watcher(s.Config.FolderHotConfig, &watcherOpts)
 		for {
 			r, err := w.Next(context.Background())
 			if err != nil {
@@ -89,7 +89,7 @@ func (s *Service) InitConfig() error {
 			if r.Action != "set" {
 				continue
 			}
-			conf, err := s.ETCD.KAPI.Get(context.Background(), "/cron/Config", nil)
+			conf, err := s.ETCD.KAPI.Get(context.Background(), s.Config.FolderHotConfig, nil)
 			if err != nil {
 				return
 			}
@@ -101,7 +101,7 @@ func (s *Service) InitConfig() error {
 			s.ServiceConfig = cfg
 		}
 	}()
-	conf, err := s.ETCD.KAPI.Get(context.Background(), "/cron/Config", nil)
+	conf, err := s.ETCD.KAPI.Get(context.Background(), s.Config.FolderHotConfig, nil)
 	if err != nil {
 		return s.DefaultServiceConfig()
 	}
@@ -123,7 +123,7 @@ func (s *Service) DefaultServiceConfig() error {
 	if err != nil {
 		return err
 	}
-	if _, err := s.ETCD.KAPI.Set(context.Background(), "/cron/Config", string(scfg), nil); err != nil {
+	if _, err := s.ETCD.KAPI.Set(context.Background(), s.Config.FolderHotConfig, string(scfg), nil); err != nil {
 		return err
 	}
 	s.ServiceConfig = cfg
@@ -133,6 +133,9 @@ func (s *Service) DefaultServiceConfig() error {
 func (s *Service) getJobs() (*Tasks, error) {
 	runner := NewTasksWithKeys(s.ETCD.KAPI)
 	runner.Watch()
+	if s.Config.LogTasksDetection {
+		runner.DebugTasks(s.Logger)
+	}
 	if err := runner.Load(); err != nil {
 		return nil, err
 	}
@@ -170,6 +173,7 @@ func (s *Service) Tick(tasks *Tasks) error {
 		}
 		task.SetRunning(s.ETCD.KAPI, true)
 		executor := NewExecutor([]byte(s.ServiceConfig.SecretKey), s.Logger)
+		executor.HTTPConfig = s.Config.HTTPConfig
 		go executor.FromTask(task)
 		task.Done(s.ETCD.KAPI)
 		tasks.Archive[task.Name] = task

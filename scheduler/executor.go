@@ -3,6 +3,7 @@ package scheduler
 import (
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -21,15 +22,25 @@ const (
 
 // Executor executes jobs
 type Executor struct {
-	secretKey []byte
-	Logger    *logrus.Logger
+	secretKey      []byte
+	Logger         *logrus.Logger
+	ErrorCounter   metrics.Counter
+	SuccessCounter metrics.Counter
+	RequestTiming  metrics.Timer
+	HTTPConfig     HTTPConfig
 }
 
 // NewExecutor returns a new executionService
 func NewExecutor(secret []byte, logger *logrus.Logger) Executor {
+	errC := metrics.GetOrRegisterCounter(metricNameExecutionError, metrics.DefaultRegistry)
+	okC := metrics.GetOrRegisterCounter(metricNameExecutionSuccessful, metrics.DefaultRegistry)
+	rTime := metrics.GetOrRegisterTimer(metricNameExecutionTiming, metrics.DefaultRegistry)
 	return Executor{
-		secretKey: secret,
-		Logger:    logger,
+		ErrorCounter:   errC,
+		SuccessCounter: okC,
+		RequestTiming:  rTime,
+		secretKey:      secret,
+		Logger:         logger,
 	}
 }
 
@@ -45,23 +56,18 @@ func (e *Executor) request(url, name string) (response *http.Response, erro erro
 		Issuer:    "/",
 		Subject:   "0",
 	}
-	errC := metrics.GetOrRegisterCounter(metricNameExecutionFailed, metrics.DefaultRegistry)
-	errM := metrics.GetOrRegisterMeter(metricNameExecutionError, metrics.DefaultRegistry)
-	t := metrics.GetOrRegisterTimer(metricNameExecutionTiming, metrics.DefaultRegistry)
-	t.Time(func() {
+	e.RequestTiming.Time(func() {
 
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 		ss, err := token.SignedString(e.secretKey)
 		if err != nil {
-			errC.Inc(1)
-			errM.Mark(1)
+			e.ErrorCounter.Inc(1)
 			erro = err
 			return
 		}
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			errC.Inc(1)
-			errM.Mark(1)
+			e.ErrorCounter.Inc(1)
 			erro = err
 			return
 		}
@@ -69,26 +75,43 @@ func (e *Executor) request(url, name string) (response *http.Response, erro erro
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
-			errC.Inc(1)
-			errM.Mark(1)
+			e.ErrorCounter.Inc(1)
 			erro = err
 			return
 		}
+		e.logHTTPStatusCode(name, req, resp)
+		e.logHTTPResponseBody(name, req, resp)
 		if resp.StatusCode >= 400 {
-			errC.Inc(1)
-			errM.Mark(1)
-			e.Logger.Warnf("%s: request to %s failed with response code: %d", name, url, resp.StatusCode)
-			erro = fmt.Errorf("response returned a bad response code: %d", resp.StatusCode)
-			return
+			erro = fmt.Errorf("Request failed.")
 		}
-
-		okC := metrics.GetOrRegisterCounter(metricNameExecutionSuccessful, metrics.DefaultRegistry)
-		okM := metrics.GetOrRegisterMeter(metricNameExecutionSuccessMeter, metrics.DefaultRegistry)
-		okC.Inc(1)
-		okM.Mark(1)
-		e.Logger.Debugf("%s: request to %s succeeded with response code: %d", name, url, resp.StatusCode)
 		erro = nil
 		response = resp
 	})
 	return
+}
+
+func (e *Executor) logHTTPResponseBody(name string, req *http.Request, resp *http.Response) {
+	if !e.HTTPConfig.LogResponseBody {
+		return
+	}
+	defer resp.Body.Close()
+	dump, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		e.Logger.Errorf("%s: Response Body dumping errored: \n %s", name, err.Error())
+		return
+	}
+	e.Logger.Infof("%s: Response Body returned: \n %q", name, dump)
+}
+
+func (e *Executor) logHTTPStatusCode(name string, req *http.Request, resp *http.Response) {
+	if !e.HTTPConfig.LogResponseStatus {
+		return
+	}
+	if resp.StatusCode >= 400 {
+		e.ErrorCounter.Inc(1)
+		e.Logger.Warnf("%s: request to %s failed with response code: %d", name, req.URL.String(), resp.StatusCode)
+		return
+	}
+	e.SuccessCounter.Inc(1)
+	e.Logger.Debugf("%s: request to %s succeeded with response code: %d", name, req.URL.String(), resp.StatusCode)
 }

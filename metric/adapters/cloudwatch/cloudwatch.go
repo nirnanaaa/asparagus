@@ -1,4 +1,4 @@
-package metric
+package cloudwatch
 
 import (
 	"fmt"
@@ -6,11 +6,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
-	"github.com/nirnanaaa/asparagus/metric/config"
+	"github.com/nirnanaaa/asparagus/metric/adapters/cloudwatch/config"
 	metrics "github.com/rcrowley/go-metrics"
 )
 
-//blocks, run as go reporter.Cloudwatch(cfg)
+// Cloudwatch blocks, run as go reporter.Cloudwatch(cfg)
 func Cloudwatch(registry metrics.Registry, cfg *config.Config) {
 	ticks := time.NewTicker(cfg.ReportingInterval)
 	defer ticks.Stop()

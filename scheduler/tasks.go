@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/coreos/etcd/client"
 	metrics "github.com/rcrowley/go-metrics"
 )
@@ -85,4 +86,11 @@ func (t *Tasks) parseTasks(nodes client.Nodes) error {
 		m.Inc(1)
 	}
 	return nil
+}
+
+// DebugTasks dumps all tasks inside the task archive
+func (t *Tasks) DebugTasks(log *logrus.Logger) {
+	for _, task := range t.Archive {
+		log.Debug("Task %s registered. After Task: %s. Has Execution Schedule: %s", task.Name, task.AfterTask, task.Expression)
+	}
 }

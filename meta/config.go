@@ -1,18 +1,17 @@
 package meta
 
+import "github.com/Sirupsen/logrus"
+
 const (
 	// DefaultLoggingEnabled determines if log messages are printed for the meta service
 	DefaultLoggingEnabled = true
-
-	// DefaultLogFile defines the destination for logs
-	DefaultLogFile = "/var/log/queue.log"
 )
 
 // Config represents the meta configuration.
 type Config struct {
-	Debug          bool   `toml:"debug"`
-	LogFile        string `toml:"log-file"`
-	LoggingEnabled bool   `toml:"logging-enabled"`
+	Debug          bool         `toml:"debug"`
+	LoggingEnabled bool         `toml:"logging-enabled"`
+	LogLevel       logrus.Level `toml:"log-level"`
 	Version        string
 }
 
@@ -20,8 +19,8 @@ type Config struct {
 func NewConfig() *Config {
 	return &Config{
 		LoggingEnabled: DefaultLoggingEnabled,
-		LogFile:        DefaultLogFile,
 		Debug:          false,
+		LogLevel:       logrus.WarnLevel,
 	}
 }
 

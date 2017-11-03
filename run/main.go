@@ -81,9 +81,8 @@ func (cmd *Command) Run(args ...string) error {
 	if err != nil {
 		return fmt.Errorf("parse config: %s", err)
 	}
-	if config.Meta.Debug {
-		logger.Level = log.DebugLevel
-	}
+	log.SetLevel(config.Meta.LogLevel)
+
 	// Apply any environment variables on top of the parsed config
 	if err := config.ApplyEnvOverrides(); err != nil {
 		return fmt.Errorf("apply env config: %v", err)
