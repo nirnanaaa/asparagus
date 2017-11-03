@@ -20,7 +20,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// Config represents the configuration format for the logx binary.
+// Config represents the configuration format for the asparagus binary.
 type Config struct {
 	Meta      *meta.Config      `toml:"meta"`
 	Metrics   *metric.Config    `toml:"metrics"`
@@ -47,7 +47,7 @@ func NewDemoConfig() (*Config, error) {
 
 // trimBOM trims the Byte-Order-Marks from the beginning of the file.
 // this is for Windows compatability only.
-// see https://github.com/logxata/telegraf/issues/1378
+// see https://github.com/asparagusata/telegraf/issues/1378
 func trimBOM(f []byte) []byte {
 	return bytes.TrimPrefix(f, []byte("\xef\xbb\xbf"))
 }
@@ -88,7 +88,7 @@ func (c *Config) Validate() error {
 
 // ApplyEnvOverrides apply the environment configuration on top of the config.
 func (c *Config) ApplyEnvOverrides() error {
-	return c.applyEnvOverrides("LOGX", reflect.ValueOf(c))
+	return c.applyEnvOverrides("ASPARAGUS", reflect.ValueOf(c))
 }
 
 func (c *Config) applyEnvOverrides(prefix string, spec reflect.Value) error {

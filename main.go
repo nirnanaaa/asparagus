@@ -115,7 +115,7 @@ func (m *Main) Run(args ...string) error {
 			return fmt.Errorf("version: %s", err)
 		}
 	default:
-		return fmt.Errorf(`unknown command "%s"`+"\n"+`Run 'logx help' for usage`+"\n\n", name)
+		return fmt.Errorf(`unknown command "%s"`+"\n"+`Run 'asparagus help' for usage`+"\n\n", name)
 	}
 
 	return nil
@@ -146,7 +146,7 @@ func ParseCommandName(args []string) (string, []string) {
 	return "", args
 }
 
-// VersionCommand represents the command executed by "logx version".
+// VersionCommand represents the command executed by "asparagus version".
 type VersionCommand struct {
 	Stdout io.Writer
 	Stderr io.Writer

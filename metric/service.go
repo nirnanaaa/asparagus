@@ -80,7 +80,7 @@ func (s *Service) Start() error {
 	}))
 	registrator := &config.Config{
 		Client:                cloudwatch.New(sess),
-		Namespace:             "LOGX",
+		Namespace:             "ASPARAGUS",
 		Filter:                &config.NoFilter{},
 		ResetCountersOnReport: true,
 		ReportingInterval:     10 * time.Second,

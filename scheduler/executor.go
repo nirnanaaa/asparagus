@@ -42,7 +42,7 @@ func (e *Executor) FromTask(t TaskDefinition) error {
 func (e *Executor) request(url, name string) (response *http.Response, erro error) {
 	claims := jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
-		Issuer:    "https://logx.miha-bodytec.com/",
+		Issuer:    "/",
 		Subject:   "0",
 	}
 	errC := metrics.GetOrRegisterCounter(metricNameExecutionFailed, metrics.DefaultRegistry)

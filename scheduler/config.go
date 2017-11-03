@@ -5,7 +5,7 @@ const (
 	DefaultTickDuration = 1000
 
 	//DefaultAPIFallbackDomain defines a default fallback
-	DefaultAPIFallbackDomain = "stage-logx.miha-bodytec.com"
+	DefaultAPIFallbackDomain = "example.com"
 )
 
 // Config represents the meta configuration.
@@ -23,8 +23,5 @@ func NewConfig() *Config {
 }
 
 func (c *Config) Validate() error {
-	// if c.BasePath == "" {
-	// 	return errors.New("Meta.BasePath must be specified ([meta] dir)")
-	// }
 	return nil
 }

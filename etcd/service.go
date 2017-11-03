@@ -129,18 +129,19 @@ func (s *Service) Start() error {
 		}
 		connectIP = endpoints
 	}
-	s.Logger.WithField("Endpoints", connectIP).Info("Discovery Endpoints")
-	// Load client cert
-	caCert, err := ioutil.ReadFile(s.Config.CACert)
-	if err != nil {
-		return err
+	s.Logger.WithField("Endpoints", connectIP).Debug("Discovery Endpoints")
+	tlsConfig := &tls.Config{}
+	if s.Config.UseSSL {
+		// Load client cert
+		caCert, err := ioutil.ReadFile(s.Config.CACert)
+		if err != nil {
+			return err
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+		tlsConfig.RootCAs = caCertPool
+		tlsConfig.BuildNameToCertificate()
 	}
-	caCertPool := x509.NewCertPool()
-	caCertPool.AppendCertsFromPEM(caCert)
-	tlsConfig := &tls.Config{
-		RootCAs: caCertPool,
-	}
-	tlsConfig.BuildNameToCertificate()
 	t := http.Transport{
 		Dial: (&net.Dialer{
 			Timeout:   30 * time.Second,
@@ -177,7 +178,7 @@ func (s *Service) GetMYIP() string {
 	internalIP, err := externalIP()
 	if err != nil {
 		s.Logger.WithError(err).Error("Error while getting local IP Address. Trying next method.")
-		return os.Getenv("LOGX_ETCD_SERVICE_NAME")
+		return os.Getenv("ASPARAGUS_ETCD_SERVICE_NAME")
 	}
 	resp, err := client.Get("http://169.254.169.254/latest/meta-data/local-ipv4")
 	if err != nil {

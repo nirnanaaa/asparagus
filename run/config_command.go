@@ -9,7 +9,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-// PrintConfigCommand represents the command executed by "logx config".
+// PrintConfigCommand represents the command executed by "asparagus config".
 type PrintConfigCommand struct {
 	Stdin  io.Reader
 	Stdout io.Writer
@@ -49,7 +49,7 @@ func (cmd *PrintConfigCommand) Run(args ...string) error {
 
 	// Validate the configuration.
 	if err := config.Validate(); err != nil {
-		return fmt.Errorf("%s. To generate a valid configuration file run `logx config > logxb.generated.conf`", err)
+		return fmt.Errorf("%s. To generate a valid configuration file run `asparagus config > asparagusb.generated.conf`", err)
 	}
 
 	toml.NewEncoder(cmd.Stdout).Encode(config)
@@ -79,11 +79,11 @@ func (cmd *PrintConfigCommand) parseConfig(path string) (*Config, error) {
 }
 
 var printConfigUsage = `Displays the default configuration.
-Usage: logx<prg> config [flags]
+Usage: asparagus<prg> config [flags]
     -config <path>
             Set the path to the initial configuration file.
-            This defaults to the environment variable LOGX_CONFIG_PATH,
-            ~/.logx/logx.conf, or /etc/logx/logx.conf if a file
+            This defaults to the environment variable ASPARAGUS_CONFIG_PATH,
+            ~/.asparagus/asparagus.conf, or /etc/asparagus/asparagus.conf if a file
             is present at any of these locations.
             Disable the automatic loading of a configuration file using
             the null device (such as /dev/null).

@@ -21,6 +21,9 @@ const (
 
 	// DefaultCA defines a default location for the ca cert.
 	DefaultCA = "/etc/ssl/certs/ca.crt"
+
+	// DefaultUseSSL defines if ssl should be used for communicating with etcd
+	DefaultUseSSL = false
 )
 
 // Config represents a configuration for a HTTP service.
@@ -32,6 +35,7 @@ type Config struct {
 	RegistryDomain  string   `toml:"discovery-domain"`
 	UseDNSDiscovery bool     `toml:"use-dns-discovery"`
 	CACert          string   `toml:"ca-cert"`
+	UseSSL          bool     `toml:"use-ssl"`
 }
 
 // NewConfig returns a new Config with default settings.
@@ -44,5 +48,6 @@ func NewConfig() Config {
 		UseDNSDiscovery: DefaultUseDNSDiscovery,
 		RegistryDomain:  DefaultRegistryDomain,
 		CACert:          DefaultCA,
+		UseSSL:          DefaultUseSSL,
 	}
 }
