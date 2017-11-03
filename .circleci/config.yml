@@ -6,6 +6,9 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.8
+        environment:
+          ASPARAGUS_ETCD_HOST: 127.0.0.1
+      - image: elcolio/etcd:latest
     working_directory: /go/src/github.com/nirnanaaa/asparagus
 
     steps:

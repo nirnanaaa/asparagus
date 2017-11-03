@@ -5,7 +5,7 @@ const (
 	DefaultServiceName = "DummyService"
 
 	// DefaultRegistryURL defines the default contact point
-	DefaultRegistryURL = "http://etcd:4001"
+	DefaultRegistryURL = "http://127.0.0.1:4001"
 
 	// DefaultLocal detects if local etcd should be used
 	DefaultLocal = false
