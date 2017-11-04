@@ -3,13 +3,12 @@ package crontab_test
 import (
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/crontab"
 )
 
-func readCrontabs(t *testing.T) []provider.Task {
+func readCrontabs(t *testing.T) map[string]*provider.Task {
 	cfg := crontab.NewConfig()
 	cfg.Enabled = true
 	ct, err := filepath.Abs("crontab")
@@ -19,19 +18,19 @@ func readCrontabs(t *testing.T) []provider.Task {
 	cfg.Crontab = ct
 	cts := crontab.NewSourceProvider(cfg)
 	tabs := map[string]*provider.Task{}
+	done := make(chan bool)
 	cts.OnTaskUpdate(func(arg0 *provider.Task) error {
 		tabs[arg0.Name] = arg0
+		if len(tabs) >= 3 {
+			done <- true
+		}
 		return nil
 	})
 	if err := cts.Read(); err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(2 * time.Second)
-	tabx := []provider.Task{}
-	for _, tab := range tabs {
-		tabx = append(tabx, *tab)
-	}
-	return tabx
+	<-done
+	return tabs
 }
 
 func TestCrontabRead(t *testing.T) {
@@ -42,7 +41,7 @@ func TestCrontabRead(t *testing.T) {
 }
 func TestCrontabExecutionSchedule(t *testing.T) {
 	tabs := readCrontabs(t)
-	tab := tabs[0]
+	tab := tabs["HTTP Test"]
 	if tab.Expression != "* * * * *" {
 		t.Fatal("Expression wasn't parsed correctly")
 	}
@@ -50,7 +49,7 @@ func TestCrontabExecutionSchedule(t *testing.T) {
 
 func TestCrontabParseExecutor(t *testing.T) {
 	tabs := readCrontabs(t)
-	tab := tabs[0]
+	tab := tabs["HTTP Test"]
 	if tab.Executor != "http" {
 		t.Fatal("Executor wasn't parsed correctly")
 	}
@@ -58,7 +57,7 @@ func TestCrontabParseExecutor(t *testing.T) {
 
 func TestCrontabParseRunning(t *testing.T) {
 	tabs := readCrontabs(t)
-	tab := tabs[0]
+	tab := tabs["HTTP Test"]
 	if tab.Running != true {
 		t.Fatal("Running wasn't parsed correctly")
 	}
@@ -66,7 +65,7 @@ func TestCrontabParseRunning(t *testing.T) {
 
 func TestCrontabParseName(t *testing.T) {
 	tabs := readCrontabs(t)
-	tab := tabs[0]
+	tab := tabs["HTTP Test"]
 	if tab.Name != "HTTP Test" {
 		t.Fatal("Name wasn't parsed correctly")
 	}
@@ -74,7 +73,7 @@ func TestCrontabParseName(t *testing.T) {
 
 func TestCrontabMapStr(t *testing.T) {
 	tabs := readCrontabs(t)
-	tab := tabs[0]
+	tab := tabs["HTTP Test"]
 	mapping, ok := tab.ExecutionConfig.(map[string]string)
 	if !ok {
 		t.Fatal("mapping wasn't a map")

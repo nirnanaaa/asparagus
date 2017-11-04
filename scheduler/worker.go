@@ -23,6 +23,7 @@ func NewWorker(id int, workerQueue chan chan *provider.Task, eps map[string]prov
 	return worker
 }
 
+// Worker defines a working horse for tasks
 type Worker struct {
 	ID                 int
 	Work               chan *provider.Task
