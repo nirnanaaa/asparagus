@@ -6,33 +6,26 @@ import (
 	"time"
 
 	"github.com/nirnanaaa/asparagus/scheduler"
-
-	"github.com/coreos/etcd/client"
 )
 
-func getConn() client.KeysAPI {
-	cfg := client.Config{
-		Endpoints:               []string{"http://localhost:4001"},
-		HeaderTimeoutPerRequest: time.Second,
-	}
-	c, err := client.New(cfg)
-	if err != nil {
-		panic(err)
-	}
-	return client.NewKeysAPI(c)
-}
-
-func seedEtcdData() {
-	// c := getConn()
-}
+//
+// func getConn() client.KeysAPI {
+// 	cfg := client.Config{
+// 		Endpoints:               []string{"http://localhost:4001"},
+// 		HeaderTimeoutPerRequest: time.Second,
+// 	}
+// 	c, err := client.New(cfg)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	return client.NewKeysAPI(c)
+// }
 
 func TestLoadOK(t *testing.T) {
-	seedEtcdData()
-	c := getConn()
 	config := scheduler.NewConfig()
 	fp, _ := filepath.Abs("provider/crontab/crontab")
 	config.CrontabSource.Crontab = fp
-	cli := scheduler.NewTasksWithKeys(config, c)
+	cli := scheduler.NewSourceConfig(config)
 	if err := cli.Load(); err != nil {
 		t.Fatal(err.Error())
 	}

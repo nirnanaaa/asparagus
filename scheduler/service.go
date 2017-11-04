@@ -16,15 +16,8 @@ const (
 	metricNameExecutions = "cronjobExecutions"
 )
 
-type ServiceConfig struct {
-	TickDuration int64  `json:"SchedulerTickDuration"`
-	Enabled      bool   `json:"Enabled"`
-	SecretKey    string `json:"SecretKey"`
-}
-
 // Service Returns a config
 type Service struct {
-	ServiceConfig      ServiceConfig
 	Config             *Config
 	Logger             *logrus.Logger
 	ETCD               *etcd.Service
@@ -75,12 +68,17 @@ func (s *Service) Start() error {
 // Stop cancels any executions immediately
 func (s *Service) Stop() error {
 	s.Cancel <- struct{}{}
-	<-s.Cancel
+	// <-s.Cancel
 	return nil
 }
 
+// RegisterExecutionProvider registers or overwrites an execution provider
+func (s *Service) RegisterExecutionProvider(name string, provider provider.ExecutionProvider) {
+	s.ExecutionProviders[name] = provider
+}
+
 func (s *Service) getJobs() (*Tasks, error) {
-	runner := NewTasksWithKeys(s.Config, s.ETCD.KAPI)
+	runner := NewSourceConfig(s.Config)
 
 	if err := runner.Load(); err != nil {
 		return nil, err

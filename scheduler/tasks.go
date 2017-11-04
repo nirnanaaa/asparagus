@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/coreos/etcd/client"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/crontab"
 )
@@ -19,22 +18,17 @@ const (
 // Tasks store all the structural data needed to run the cronjobs
 type Tasks struct {
 	BasePath        string
-	Archive         map[string]TaskDefinition
-	Keys            client.KeysAPI
 	Tasks           map[string]*provider.Task
 	SourceProviders []provider.SourceProvider
 }
 
-// NewTasksWithKeys returns a new Task archive
-func NewTasksWithKeys(config *Config, keys client.KeysAPI) *Tasks {
+// NewSourceConfig returns a new Task archive
+func NewSourceConfig(config *Config) *Tasks {
 	source := []provider.SourceProvider{
 		crontab.NewSourceProvider(config.CrontabSource),
 	}
 
 	return &Tasks{
-		BasePath:        "/cron/Jobs",
-		Keys:            keys,
-		Archive:         make(map[string]TaskDefinition),
 		Tasks:           make(map[string]*provider.Task),
 		SourceProviders: source,
 	}

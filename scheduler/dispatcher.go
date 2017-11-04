@@ -5,6 +5,7 @@ import (
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 )
 
+// Dispatcher for spinning up workers and distributing work
 type Dispatcher struct {
 	WorkerQueue chan chan *provider.Task
 	WorkQueue   chan *provider.Task
@@ -16,9 +17,9 @@ func StartDispatcher(nworkers int, eps map[string]provider.ExecutionProvider) *D
 	d := &Dispatcher{
 		WorkQueue:   make(chan *provider.Task, 100),
 		WorkerQueue: make(chan chan *provider.Task, nworkers),
+		// Workers:     make([]*Worker, nworkers),
 	}
 	logrus.Debugf("Starting %d workers", nworkers)
-	// Now, create all of our workers.
 	for i := 0; i < nworkers; i++ {
 		worker := NewWorker(i+1, d.WorkerQueue, eps)
 		worker.Start()
@@ -45,11 +46,4 @@ func (d *Dispatcher) Stop() error {
 		w.Stop()
 	}
 	return nil
-}
-
-// OnTaskDone registers a callback on each worker process
-func (d *Dispatcher) OnTaskDone(fn func(t *provider.Task) error) {
-	for _, w := range d.Workers {
-		w.Callbacks["done"] = fn
-	}
 }
