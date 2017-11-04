@@ -1,7 +1,7 @@
 package scheduler_test
 
 import (
-	"context"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -23,15 +23,16 @@ func getConn() client.KeysAPI {
 }
 
 func seedEtcdData() {
-	c := getConn()
-	c.Set(context.Background(), "/cron/Config", `{"SchedulerTickDuration":1000,"Enabled":true,"SecretKey":"cf86bb5624de56b1d88c205ac261b1cc6cb2a529f0c408475f007d4d00c2f3aa75fb5c2a0c33c3eb7e3a628acd7fa02aa2f5774614201b780a36542f2fc67ead"}`, nil)
-	c.Set(context.Background(), "/cron/Jobs/ExampleJob", `{"Name":"ExampleJob","Expression":"* * * * *","URIIsAbsolute":true,"URI":"http://stage-asparagus.miha-bodytec.com/api/v1/cron/ManagementRatioGenerate"}`, nil)
+	// c := getConn()
 }
 
 func TestLoadOK(t *testing.T) {
 	seedEtcdData()
 	c := getConn()
-	cli := scheduler.NewTasksWithKeys(c)
+	config := scheduler.NewConfig()
+	fp, _ := filepath.Abs("provider/crontab/crontab")
+	config.CrontabSource.Crontab = fp
+	cli := scheduler.NewTasksWithKeys(config, c)
 	if err := cli.Load(); err != nil {
 		t.Fatal(err.Error())
 	}
@@ -39,16 +40,6 @@ func TestLoadOK(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	if _, err := cli.GetTask("ExampleJob1"); err == nil {
-		t.Fatal("Task that shouldn't exist exists.")
-	}
-	cli.Watch()
-	time.Sleep(1 * time.Second)
-	c.Set(context.Background(), "/cron/Jobs/ExampleJob", `{"Name":"ExampleJob1","Expression":"* * * * *","URIIsAbsolute":true,"URI":"http://stage-asparagus.miha-bodytec.com/api/v1/cron/ManagementRatioGenerate"}`, nil)
-	time.Sleep(500 * time.Millisecond)
-	if _, err := cli.GetTask("ExampleJob1"); err != nil {
-		t.Fatal(err.Error())
-	}
-	if _, err := cli.GetTask("ExampleJob"); err == nil {
 		t.Fatal("Task that shouldn't exist exists.")
 	}
 }

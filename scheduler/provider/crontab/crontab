@@ -1,0 +1,3 @@
+* * * * * [Name="HTTP Test" Executor=http Running=true] [URL="https://httpbin.org/get" Method=get]
+* * * * * [Name="HTTP Test1" Executor=http Running=true AfterTask="HTTP Test"] [URL="https://httpbin.org/post" Method=post]
+* * * * * [Name="ExampleJob" Executor=http] [URL="https://httpbin.org/post" Method=post]

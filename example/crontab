@@ -1,0 +1,1 @@
+* * * * * [Name="HTTP Test" Executor=http] [URL="https://httpbin.org/get" Method=get]

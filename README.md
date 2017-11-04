@@ -15,7 +15,6 @@ docker pull nirnanaaa/asparagus
 
 # Optional: Spin up an etcd instance
 # docker run --name etcd -d elcolio/etcd:latest
-
 docker run --rm -ti -e ASPARAGUS_ETCD_REGISTRY_URL=http://etcd:4001 --link etcd:etcd nirnanaaa/asparagus
 ```
 
@@ -77,6 +76,9 @@ Each cronjob follows a pre-defined json schema. It uses a regular cron expressio
   "AfterTask":"string - following the \"Name\" variable",
   "URI":"string",
   "URIIsAbsolute":true,
+  "ExecutionConfig": {
+    "Provider": "http"
+  }
 }
 ```
 

@@ -1,9 +1,10 @@
-package scheduler
+package http
 
 import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -11,27 +12,17 @@ import (
 	metrics "github.com/rcrowley/go-metrics"
 )
 
-const (
-	metricNameExecutionSuccessful   = "cronjobExecutionSuccessful"
-	metricNameExecutionSuccessMeter = "cronjobExecutionSuccessMeter"
-	metricNameExecutionTiming       = "cronjobExecutionTiming"
-	metricNameExecutionFailed       = "cronjobExecutionFailed"
-	metricNameExecutionError        = "cronjobExecutionErrorMeter"
-	metricNameExecutionPayloadSize  = "cronjobExecutionPayloadSize"
-)
-
 // Executor executes jobs
 type Executor struct {
-	secretKey      []byte
 	Logger         *logrus.Logger
 	ErrorCounter   metrics.Counter
 	SuccessCounter metrics.Counter
 	RequestTiming  metrics.Timer
-	HTTPConfig     HTTPConfig
+	HTTPConfig     Config
 }
 
 // NewExecutor returns a new executionService
-func NewExecutor(secret []byte, logger *logrus.Logger) Executor {
+func NewExecutor(logger *logrus.Logger) Executor {
 	errC := metrics.GetOrRegisterCounter(metricNameExecutionError, metrics.DefaultRegistry)
 	okC := metrics.GetOrRegisterCounter(metricNameExecutionSuccessful, metrics.DefaultRegistry)
 	rTime := metrics.GetOrRegisterTimer(metricNameExecutionTiming, metrics.DefaultRegistry)
@@ -39,39 +30,42 @@ func NewExecutor(secret []byte, logger *logrus.Logger) Executor {
 		ErrorCounter:   errC,
 		SuccessCounter: okC,
 		RequestTiming:  rTime,
-		secretKey:      secret,
 		Logger:         logger,
 	}
 }
 
 // FromTask runs a task definition
-func (e *Executor) FromTask(t TaskDefinition) error {
-	_, err := e.request(t.URI, t.Name)
+func (e *Executor) FromTask(t ExecutionData) error {
+	_, err := e.Request(t.URL, t.Method)
 	return err
 }
 
-func (e *Executor) request(url, name string) (response *http.Response, erro error) {
-	claims := jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(10 * time.Minute).Unix(),
-		Issuer:    "/",
-		Subject:   "0",
-	}
+// Request performs an actual http request
+func (e *Executor) Request(url, method string) (response *http.Response, erro error) {
 	e.RequestTiming.Time(func() {
+		req, err := http.NewRequest(strings.ToUpper(method), url, nil)
+		if err != nil {
+			e.ErrorCounter.Inc(1)
+			erro = err
+			return
+		}
+		if e.HTTPConfig.SignJWT {
+			claims := jwt.StandardClaims{
+				ExpiresAt: time.Now().Add(time.Duration(e.HTTPConfig.JWTExpires)).Unix(),
+				Issuer:    e.HTTPConfig.Issuer,
+				Subject:   e.HTTPConfig.JWTSubject,
+			}
+			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+			ss, err := token.SignedString([]byte(e.HTTPConfig.JWTSecret))
+			if err != nil {
+				e.ErrorCounter.Inc(1)
+				erro = err
+				return
+			}
+			req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", ss))
+		}
+		e.logHTTPRequest(method, req)
 
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		ss, err := token.SignedString(e.secretKey)
-		if err != nil {
-			e.ErrorCounter.Inc(1)
-			erro = err
-			return
-		}
-		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			e.ErrorCounter.Inc(1)
-			erro = err
-			return
-		}
-		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", ss))
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err != nil {
@@ -79,10 +73,11 @@ func (e *Executor) request(url, name string) (response *http.Response, erro erro
 			erro = err
 			return
 		}
-		e.logHTTPStatusCode(name, req, resp)
-		e.logHTTPResponseBody(name, req, resp)
+		e.logHTTPStatusCode(method, req, resp)
+		e.logHTTPResponseBody(method, req, resp)
 		if resp.StatusCode >= 400 {
-			erro = fmt.Errorf("Request failed.")
+			erro = fmt.Errorf("request failed with status code %d", resp.StatusCode)
+			return
 		}
 		erro = nil
 		response = resp
@@ -90,21 +85,34 @@ func (e *Executor) request(url, name string) (response *http.Response, erro erro
 	return
 }
 
+func (e *Executor) logHTTPRequest(name string, req *http.Request) {
+	if !e.HTTPConfig.DebugResponse {
+		return
+	}
+	dump, err := httputil.DumpRequestOut(req, true)
+	if err != nil {
+		e.Logger.
+			Errorf("%s: Request dumping errored: \n%s", name, err.Error())
+		return
+	}
+	e.Logger.Infof("%s: Request returned: \n%s", name, dump)
+}
 func (e *Executor) logHTTPResponseBody(name string, req *http.Request, resp *http.Response) {
-	if !e.HTTPConfig.LogResponseBody {
+	if !e.HTTPConfig.DebugResponse {
 		return
 	}
 	defer resp.Body.Close()
 	dump, err := httputil.DumpResponse(resp, true)
 	if err != nil {
-		e.Logger.Errorf("%s: Response Body dumping errored: \n %s", name, err.Error())
+		e.Logger.
+			Errorf("%s: Response Body dumping errored: \n%s", name, err.Error())
 		return
 	}
-	e.Logger.Infof("%s: Response Body returned: \n %q", name, dump)
+	e.Logger.Infof("%s: Response Body returned: \n%s", name, dump)
 }
 
 func (e *Executor) logHTTPStatusCode(name string, req *http.Request, resp *http.Response) {
-	if !e.HTTPConfig.LogResponseStatus {
+	if !e.HTTPConfig.LogHTTPStatus {
 		return
 	}
 	if resp.StatusCode >= 400 {
