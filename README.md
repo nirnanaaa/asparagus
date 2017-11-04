@@ -10,12 +10,15 @@ A simple and pluggable cron scheduler for distributed systems.
 
 ```bash
 
-# ETCD Backend
+# Crontab Backend
 docker pull nirnanaaa/asparagus
 
 # Optional: Spin up an etcd instance
-# docker run --name etcd -d elcolio/etcd:latest
-docker run --rm -ti -e ASPARAGUS_ETCD_REGISTRY_URL=http://etcd:4001 --link etcd:etcd nirnanaaa/asparagus
+docker run \
+  --rm -ti \
+  -v $(pwd)/example:/app \
+  -e ASPARAGUS_SCHEDULER_PROVIDER_CRONTAB_SOURCE=/app/crontab \
+  nirnanaaa/asparagus
 ```
 
 # How it works
@@ -59,45 +62,14 @@ Alternatively you can use prefixed environment variables for each configuration 
 ASPARAGUS_<SECTION>_<KEY>=<VALUE>
 ```
 # Crontab/Source providers
+## local crontab
 
-## local crontab (tbd)
+See the `example/crontab` file for a reference. The sample config inside the docs folder should guide you through setting everyting up.
+
+
 ## SQL (postgres/mysql/sqlite..., tbd)
 
-## ETCD
-
-Each cronjob follows a pre-defined json schema. It uses a regular cron expression for execution:
-
-
-```json
-{
-  "Name":"string",
-  "Expression":"0 02,03,23 * * *",
-  "LastRunAt":"rfc3339 formatted datetime",
-  "AfterTask":"string - following the \"Name\" variable",
-  "URI":"string",
-  "URIIsAbsolute":true,
-  "ExecutionConfig": {
-    "Provider": "http"
-  }
-}
-```
-
-To see all possible configuration options take a look inside the `scheduler/definition.go` file.
-
-Those cronjob should be placed inside the configured cronjob folder inside etcd (default: `/cron/Jobs/<name>`)
-
-### Scheduler configuration
-The scheduler itself has hot-configuration mode, that can be used to alter tick interval and a jwt secret to sign your requests with (ROADMAP: configureable). Its location can be specified inside the `/cron/Config` (ROADMAP) key inside etcd.
-
-Schema:
-
-```json
-{
-  "SchedulerTickDuration":1000,
-  "Enabled":true,
-  "SecretKey":"string"
-}
-```
+## ETCD - TBD Reimplementation
 
 # Execution provider
 
