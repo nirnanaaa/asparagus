@@ -1,3 +1,5 @@
+- [ ] Clean up old code
+- [ ] Remove etcd static references
 - [ ] Logging and Reporting adapters
 - [ ] Pluggable Metric/Reporting adapters
 - [ ] Pluggable Transports

@@ -50,7 +50,7 @@
   registry-url = ["http://127.0.0.1:4001"]
   binding-port = 9092
   local = false
-  discovery-domain = "services.miha-bodytec.com"
+  discovery-domain = "services.example.com"
   use-dns-discovery = false
   ca-cert = "/etc/ssl/certs/ca.crt"
   use-ssl = false
