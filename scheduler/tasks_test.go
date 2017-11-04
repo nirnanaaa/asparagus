@@ -36,6 +36,7 @@ func TestLoadOK(t *testing.T) {
 	if err := cli.Load(); err != nil {
 		t.Fatal(err.Error())
 	}
+	time.Sleep(100 * time.Millisecond)
 	if _, err := cli.GetTask("ExampleJob"); err != nil {
 		t.Fatal(err.Error())
 	}

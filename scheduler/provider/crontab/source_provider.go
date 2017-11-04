@@ -12,18 +12,44 @@ import (
 
 // SourceProvider creates a new src provider
 type SourceProvider struct {
-	Config Config
+	Config   Config
+	TaskFlow chan *provider.Task
+	QuitChan chan bool
 }
 
 // NewSourceProvider creates a new src provider
 func NewSourceProvider(config Config) *SourceProvider {
 	return &SourceProvider{
-		config,
+		Config:   config,
+		TaskFlow: make(chan *provider.Task),
+		QuitChan: make(chan bool),
 	}
 }
 
+// OnTaskUpdate runs when a task gets updated
+func (p SourceProvider) OnTaskUpdate(fn func(*provider.Task) error) {
+	go func() {
+		for {
+			select {
+			case task := <-p.TaskFlow:
+				fn(task)
+			case <-p.QuitChan:
+				return
+			}
+		}
+	}()
+}
+
+// Stop quits reading tasks
+func (p SourceProvider) Stop() error {
+	go func() {
+		p.QuitChan <- true
+	}()
+	return nil
+}
+
 // Read reads from FS
-func (p *SourceProvider) Read(tasks *map[string]*provider.Task) error {
+func (p *SourceProvider) Read() error {
 	if !p.Config.Enabled {
 		return nil
 	}
@@ -36,10 +62,7 @@ func (p *SourceProvider) Read(tasks *map[string]*provider.Task) error {
 		if err := p.parseLine(&px, line); err != nil {
 			return err
 		}
-		// TODO: This clearly sucks
-		task := *tasks
-		task[px.Name] = &px
-		tasks = &task
+		p.TaskFlow <- &px
 	}
 	return nil
 }

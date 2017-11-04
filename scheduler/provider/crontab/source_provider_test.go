@@ -3,6 +3,7 @@ package crontab_test
 import (
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/crontab"
@@ -18,9 +19,14 @@ func readCrontabs(t *testing.T) []provider.Task {
 	cfg.Crontab = ct
 	cts := crontab.NewSourceProvider(cfg)
 	tabs := map[string]*provider.Task{}
-	if err := cts.Read(&tabs); err != nil {
+	cts.OnTaskUpdate(func(arg0 *provider.Task) error {
+		tabs[arg0.Name] = arg0
+		return nil
+	})
+	if err := cts.Read(); err != nil {
 		t.Fatal(err)
 	}
+	time.Sleep(100 * time.Millisecond)
 	tabx := []provider.Task{}
 	for _, tab := range tabs {
 		tabx = append(tabx, *tab)

@@ -6,8 +6,9 @@ import (
 
 // SourceProvider is used to get tasks
 type SourceProvider interface {
-	Read(*map[string]*Task) error
-	// Stop() error
+	Read() error
+	OnTaskUpdate(func(*Task) error)
+	Stop() error
 }
 
 // ExecutionProvider is used for executing cronjobs

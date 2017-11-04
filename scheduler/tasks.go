@@ -42,8 +42,12 @@ func NewTasksWithKeys(config *Config, keys client.KeysAPI) *Tasks {
 
 // Load loads tasks from etcd
 func (t *Tasks) Load() error {
-	for _, provider := range t.SourceProviders {
-		if err := provider.Read(&t.Tasks); err != nil {
+	for _, pv := range t.SourceProviders {
+		pv.OnTaskUpdate(func(tx *provider.Task) error {
+			t.Tasks[tx.Name] = tx
+			return nil
+		})
+		if err := pv.Read(); err != nil {
 			return err
 		}
 	}
