@@ -26,7 +26,7 @@ func readCrontabs(t *testing.T) []provider.Task {
 	if err := cts.Read(); err != nil {
 		t.Fatal(err)
 	}
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(1 * time.Second)
 	tabx := []provider.Task{}
 	for _, tab := range tabs {
 		tabx = append(tabx, *tab)
