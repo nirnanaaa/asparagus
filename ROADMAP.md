@@ -3,6 +3,6 @@
 - [ ] Logging and Reporting adapters
 - [ ] Pluggable Metric/Reporting adapters
 - [ ] Pluggable Transports
-- [ ] Pluggable Storage services
+- [x] Pluggable Storage services
 - [ ] Pluggable Request security
 - [ ] Distributed executors (like Airflow)
