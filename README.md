@@ -4,12 +4,23 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/ef3bb9a0dbc5b1994a9d/maintainability)](https://codeclimate.com/github/nirnanaaa/asparagus/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/ef3bb9a0dbc5b1994a9d/test_coverage)](https://codeclimate.com/github/nirnanaaa/asparagus/test_coverage)
 
-A simple and pluggable cron scheduler for distributed systems.
+## A simple and pluggable cron scheduler for distributed systems.
 
-# Usage
+Asparagus is an open source *task scheduler* with *no external dependencies*. It's useful for
+executing scheduled tasks on any environment.
+
+## Features
+
+- Variety of [Source Providers](./docs/source/01-base.md)), ranging from standard crontab to etcd based backends.
+- Multiple [Execution Providers](./docs/execution/01-base.md), including HTTP and local execution.
+- Simple to install and manage, and easy to get started.
+- Monitoring and reporting is a key priority.
+
+## Installation
+
+We recommend using Asparagus with our pre-built Docker image. Start Asparagus using:
 
 ```bash
-
 # Crontab Backend
 docker pull fkconsultin/asparagus
 
@@ -64,20 +75,14 @@ ASPARAGUS_<SECTION>_<KEY>=<VALUE>
 
 Read the annotated documentation if you want to find out more: [here](./docs/config.md)
 
-# Source Providers
+## Source Providers
 
 Source providers define where cronjobs can be discovered. To find out more read [this](./docs/source/01-base.md) article.
 
-# Execution Providers
+## Execution Providers
 
 Execution providers execute whatever was defined inside a cronjob. To find out more read [this](./docs/execution/01-base.md) article.
 
-# License
+## Contributing
 
-Copyright 2017 Florian Kasper
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+If you're feeling adventurous and want to contribute to Aspragus, see our [contributing doc](./CONTRIBUTING.md) for info on how to make feature requests, build from source, and run tests.
