@@ -25,3 +25,18 @@ of three "chunks" of information:
 - Executor configuration: Just like with the task configuration you can define settings
   that will be passed down to the executor. In case of using the HTTP executor, sample settings
   would be a `URL` or `Method`: `[URL="https://httpbin.org/get" Method="GET"]`.
+
+
+# Examples
+
+To see a valid crontab checkout [THIS](../../example/crontab) file.
+
+
+- Execute a cronjob every minute, using the HTTP executor:
+  ```
+  * * * * * [Name="HTTP Test" Executor=http] [URL="https://httpbin.org/get" Method=get]
+  ```
+- Execute a cronjob every day, using the HTTP executor:
+  ```
+  @daily [Name="HTTP Test" Executor=http] [URL="https://httpbin.org/get" Method=get]
+  ```
