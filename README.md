@@ -11,14 +11,14 @@ A simple and pluggable cron scheduler for distributed systems.
 ```bash
 
 # Crontab Backend
-docker pull nirnanaaa/asparagus
+docker pull fkconsultin/asparagus
 
 # Optional: Spin up an etcd instance
 docker run \
   --rm -ti \
   -v $(pwd)/example:/app \
   -e ASPARAGUS_SCHEDULER_PROVIDER_CRONTAB_SOURCE=/app/crontab \
-  nirnanaaa/asparagus
+  fkconsultin/asparagus
 ```
 
 # How it works
@@ -47,13 +47,13 @@ on the target system.
 Configuration is done using environment variables or a central config file. You can generate a sample configuration file by using the following command:
 
 ```
-docker run --rm -ti nirnanaaa/asparagus config
+docker run --rm -ti fkconsultin/asparagus config > conf/asparagus.conf
 ```
 
 Now you can start your asparagus instance using the provided volume: `/etc/asparagus` using the `asparagus.conf` filename:
 
 ```
-docker run --rm -ti -v $(pwd)/conf:/etc/asparagus nirnanaaa/asparagus config
+docker run --rm -ti -v $(pwd)/conf:/etc/asparagus fkconsultin/asparagus
 ```
 
 Alternatively you can use prefixed environment variables for each configuration variable, like so:
