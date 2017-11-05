@@ -18,7 +18,7 @@ func initConf() http.Config {
 func TestHTTPRequestGET(t *testing.T) {
 	cfg := initConf()
 	req := http.NewExecutionProvider(cfg)
-	if err := req.Execute(map[string]string{
+	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/get",
 		"Method": "GET",
 	}); err != nil {
@@ -28,7 +28,7 @@ func TestHTTPRequestGET(t *testing.T) {
 func TestHTTPRequestGETPostEndpoint(t *testing.T) {
 	cfg := initConf()
 	req := http.NewExecutionProvider(cfg)
-	err := req.Execute(map[string]string{
+	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/post",
 		"Method": "GET",
 	})
@@ -44,7 +44,7 @@ func TestHTTPRequestPOST(t *testing.T) {
 	cfg.DebugResponse = false
 	cfg.LogHTTPStatus = false
 	req := http.NewExecutionProvider(cfg)
-	if err := req.Execute(map[string]string{
+	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/post",
 		"Method": "POST",
 	}); err != nil {
@@ -58,7 +58,7 @@ func TestHTTPRequestPUT(t *testing.T) {
 	cfg.DebugResponse = false
 	cfg.LogHTTPStatus = false
 	req := http.NewExecutionProvider(cfg)
-	if err := req.Execute(map[string]string{
+	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/put",
 		"Method": "PUT",
 	}); err != nil {
@@ -70,7 +70,7 @@ func TestHTTPRequestDELETE(t *testing.T) {
 	cfg.DebugResponse = false
 	cfg.LogHTTPStatus = false
 	req := http.NewExecutionProvider(cfg)
-	if err := req.Execute(map[string]string{
+	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/delete",
 		"Method": "DELETE",
 	}); err != nil {
@@ -81,7 +81,7 @@ func TestHTTPRequest409(t *testing.T) {
 	cfg := initConf()
 	cfg.DebugResponse = true
 	req := http.NewExecutionProvider(cfg)
-	err := req.Execute(map[string]string{
+	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/status/409",
 		"Method": "GET",
 	})
@@ -109,7 +109,7 @@ func TestHTTPNotEnabled(t *testing.T) {
 	cfg := initConf()
 	cfg.Enabled = false
 	req := http.NewExecutionProvider(cfg)
-	err := req.Execute(map[string]string{
+	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/get",
 		"Method": "GET",
 	})

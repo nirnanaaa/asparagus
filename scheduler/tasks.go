@@ -6,6 +6,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/crontab"
+	"github.com/nirnanaaa/asparagus/scheduler/provider/etcd"
 )
 
 const (
@@ -26,6 +27,7 @@ type Tasks struct {
 func NewSourceConfig(config *Config) *Tasks {
 	source := []provider.SourceProvider{
 		crontab.NewSourceProvider(config.CrontabSource),
+		etcd.NewSourceProvider(config.ETCDSource),
 	}
 
 	return &Tasks{

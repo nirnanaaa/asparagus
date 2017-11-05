@@ -7,7 +7,7 @@ import (
 )
 
 // MapToStruct turns a map into a mapped struct
-func MapToStruct(t interface{}, values map[string]string) error {
+func MapToStruct(t interface{}, values map[string]interface{}) error {
 	ps := reflect.ValueOf(t)
 	// struct
 	s := ps.Elem()
@@ -20,7 +20,7 @@ func MapToStruct(t interface{}, values map[string]string) error {
 			if f.CanSet() {
 				switch v := f.Interface().(type) {
 				case int:
-					val, err := strconv.Atoi(value)
+					val, err := strconv.Atoi(value.(string))
 					if err != nil {
 						return err
 					}
@@ -29,9 +29,9 @@ func MapToStruct(t interface{}, values map[string]string) error {
 						f.SetInt(x)
 					}
 				case string:
-					f.SetString(value)
+					f.SetString(value.(string))
 				case bool:
-					f.SetBool(value == "true")
+					f.SetBool(value.(string) == "true")
 				default:
 					return fmt.Errorf("i don't know how to parse type %T", v)
 				}

@@ -35,8 +35,8 @@ type ExecutionData struct {
 // ParseExecutionContext parses the message
 func (p *ExecutionProvider) extractData(data *ExecutionData, msg interface{}) error {
 	switch v := msg.(type) {
-	case map[string]string:
-		iface, ok := msg.(map[string]string)
+	case map[string]interface{}:
+		iface, ok := msg.(map[string]interface{})
 		if !ok {
 			return fmt.Errorf("interface conversion failed")
 		}

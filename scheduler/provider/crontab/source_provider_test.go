@@ -74,7 +74,7 @@ func TestCrontabParseName(t *testing.T) {
 func TestCrontabMapStr(t *testing.T) {
 	tabs := readCrontabs(t)
 	tab := tabs["HTTP Test"]
-	mapping, ok := tab.ExecutionConfig.(map[string]string)
+	mapping, ok := tab.ExecutionConfig.(map[string]interface{})
 	if !ok {
 		t.Fatal("mapping wasn't a map")
 	}
