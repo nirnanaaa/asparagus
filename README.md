@@ -6,7 +6,7 @@
 
 ## A simple and pluggable cron scheduler for distributed systems.
 
-Asparagus is an open source *task scheduler* with *no external dependencies*. It's useful for
+Asparagus is an open source **task scheduler** with **no external dependencies**. It's useful for
 executing scheduled tasks on any environment.
 
 ## Features
