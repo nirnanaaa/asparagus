@@ -1,57 +1,85 @@
 ```toml
 [meta]
-  debug = true
+  # Enable debug mode. This enables some additional features, like PPROF web
+  # interface.
+  debug = false
+
+  # Enable logging AT ALL
   logging-enabled = true
-  log-level = 5
-  Version = ""
+
+  # Set the log level of the application
+  log-level = "warn"
 
 [metrics]
+  # Enable metrics exporting in general
   enable-metrics = false
+
+  # Slack metrics exporter
   [metrics.slack]
     enabled = false
-    webook-url = ""
+    webhook-url = ""
     message-format = ""
     reporting-interval = "24h0m0s"
+
+  # Console metrics exporter
   [metrics.console]
     enabled = false
     reporting-interval = "24h0m0s"
+
+  # Cloudwatch metrics exporter
   [metrics.cloudwatch]
     enabled = false
-    webook-url = ""
     message-format = ""
     reporting-interval = "24h0m0s"
     namespace = ""
     reset-counters-after-report = false
-    [metrics.cloudwatch.static-dimensions]
 
+    [metrics.cloudwatch.static-dimensions]
+    # variables that will be transferred to cloudwatch.
+    # you can use any variable you like.
+    # just make sure to use the
+    # key = "stringvalue" format
+    environment = "stage"
+
+# Task scheduler and dispatcher configuration
 [scheduler]
+  # Enable or disable the task scheduler. Could be useful for setting up the system
   enabled = true
+
+  # How often should the scheduler check for new jobs to be executed
   tick-duration = "1s"
-  api-fallback-domain = "example.com"
-  cronjob-base-folder = "/cron/Jobs"
-  hot-config-path = "/cron/Config"
-  log-task-detection = true
+
+  # Log when new tasks were inserted/updated
+  log-task-detection = false
+
+  # How many workers should run to execute work - one worker can execute one job at a time
+  # so make sure to scale them properly.
   num-workers = 10
+
+  # The HTTP Executor (cronjob target)
   [scheduler.executor-http]
+    # Enable it
     enabled = true
-    debug-response = true
-    log-http-status = true
-    use-jwt-signing = false
+
+    # Debug the HTTP request/response cycle. Could be useful for detecting job errors.
+    # Will log an output like `curl -v` into stdout.
+    debug-response = false
+
+    # Log a success/error message with the HTTP status code into console.
+    # this is unaffected by `debug-response`
+    log-http-status = false
+
+    # Sign the requests using JWT tokens inside the `Authorization` header.
+    # use with caution. This will probably be exported into a seperate executor
+    # or middleware.
+    use-jwt-signing = true
     jwt-issuer = "issuer"
     jwt-expires = "10m0s"
     jwt-subject = "0"
     jwt-secret = ""
+
+  # The Crontab source provider (crontab source)
   [scheduler.provider-crontab]
     enabled = true
-    source = "/Users/fkasper/.asparagus/crontab"
-
-[etcd]
-  service-name = "DummyService"
-  registry-url = ["http://127.0.0.1:4001"]
-  binding-port = 9092
-  local = false
-  discovery-domain = "services.example.com"
-  use-dns-discovery = false
-  ca-cert = "/etc/ssl/certs/ca.crt"
-  use-ssl = false
+    source = "/etc/crontab"
 ```

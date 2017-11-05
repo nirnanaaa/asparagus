@@ -9,7 +9,6 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/nirnanaaa/asparagus/etcd"
 	"github.com/nirnanaaa/asparagus/metric"
 	"github.com/nirnanaaa/asparagus/scheduler"
 )
@@ -81,7 +80,11 @@ func (cmd *Command) Run(args ...string) error {
 	if err != nil {
 		return fmt.Errorf("parse config: %s", err)
 	}
-	log.SetLevel(config.Meta.LogLevel)
+	lvl, err := log.ParseLevel(config.Meta.LogLevel)
+	if err != nil {
+		return fmt.Errorf("parse log level: %s", err)
+	}
+	log.SetLevel(lvl) //.config.Meta.LogLevel)
 
 	// Apply any environment variables on top of the parsed config
 	if err := config.ApplyEnvOverrides(); err != nil {
@@ -94,14 +97,11 @@ func (cmd *Command) Run(args ...string) error {
 	}
 	flag.Parse()
 
-	etcd := etcd.NewService(config.ETCD)
-	cmd.Services = append(cmd.Services, etcd)
-
 	metricx := metric.NewService(config.Metrics)
 	metricx.Logger = logger
 	cmd.Services = append(cmd.Services, metricx)
 	scheduler := scheduler.NewService(config.Scheduler)
-	scheduler.ETCD = etcd
+	scheduler.Logger = logger
 	cmd.Services = append(cmd.Services, scheduler)
 	return nil
 }

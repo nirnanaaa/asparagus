@@ -14,7 +14,7 @@ const (
 // Config represents the meta configuration.
 type Config struct {
 	Enabled           bool          `toml:"enabled"`
-	WebookURL         string        `toml:"webook-url"`
+	WebookURL         string        `toml:"webhook-url"`
 	MessageFormat     string        `toml:"message-format"`
 	ReportingInterval toml.Duration `toml:"reporting-interval"`
 }

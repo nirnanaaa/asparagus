@@ -3,7 +3,6 @@ package scheduler
 import (
 	"time"
 
-	"github.com/nirnanaaa/asparagus/etcd"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/http"
 
@@ -20,7 +19,6 @@ const (
 type Service struct {
 	Config             *Config
 	Logger             *logrus.Logger
-	ETCD               *etcd.Service
 	Cancel             chan struct{}
 	Ticker             *time.Ticker
 	ExecutionProviders map[string]provider.ExecutionProvider
@@ -35,7 +33,6 @@ func NewService(config *Config) *Service {
 	return &Service{
 		Config:             config,
 		Cancel:             make(chan struct{}),
-		Logger:             logrus.New(),
 		ExecutionProviders: target,
 	}
 }

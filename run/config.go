@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nirnanaaa/asparagus/etcd"
 	"github.com/nirnanaaa/asparagus/meta"
 	"github.com/nirnanaaa/asparagus/metric"
 	"github.com/nirnanaaa/asparagus/scheduler"
@@ -25,7 +24,6 @@ type Config struct {
 	Meta      *meta.Config      `toml:"meta"`
 	Metrics   *metric.Config    `toml:"metrics"`
 	Scheduler *scheduler.Config `toml:"scheduler"`
-	ETCD      etcd.Config       `toml:"etcd"`
 }
 
 // NewConfig returns an instance of Config with reasonable defaults.
@@ -34,7 +32,6 @@ func NewConfig() *Config {
 	c.Meta = meta.NewConfig()
 	c.Metrics = metric.NewConfig()
 	c.Scheduler = scheduler.NewConfig()
-	c.ETCD = etcd.NewConfig()
 	return c
 }
 
