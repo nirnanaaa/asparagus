@@ -61,22 +61,16 @@ Alternatively you can use prefixed environment variables for each configuration 
 ```
 ASPARAGUS_<SECTION>_<KEY>=<VALUE>
 ```
-# Crontab/Source providers
-## local crontab
 
-See the `example/crontab` file for a reference. The sample config inside the docs folder should guide you through setting everyting up.
+Read the annotated documentation if you want to find out more: [here](./docs/config.md)
 
+# Source Providers
 
-## SQL (postgres/mysql/sqlite..., tbd)
+Source providers define where cronjobs can be discovered. To find out more read [this](./docs/source/01-base.md) article.
 
-## ETCD - TBD Reimplementation
+# Execution Providers
 
-# Execution provider
-
-## HTTP
-## Kafka (tbd)
-## SQS (tbd)
-
+Execution providers execute whatever was defined inside a cronjob. To find out more read [this](./docs/execution/01-base.md) article.
 
 # License
 
