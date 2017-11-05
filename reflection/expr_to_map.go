@@ -5,12 +5,13 @@ import (
 	"strings"
 )
 
-var exprRex = regexp.MustCompile(`(\w+)=("(.*?)"|\w+)`)
+// ExprRex is used for matching maps
+var ExprRex = regexp.MustCompile(`(\w+)=("(.*?)"|\w+)`)
 
 // ExprToMap turns an expression (key=value) into a map of strings.
 //
 func ExprToMap(expr string) map[string]interface{} {
-	data := exprRex.FindAllStringSubmatch(expr, -1)
+	data := ExprRex.FindAllStringSubmatch(expr, -1)
 
 	res := make((map[string]interface{}))
 	for _, kv := range data {

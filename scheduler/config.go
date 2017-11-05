@@ -6,6 +6,7 @@ import (
 	"github.com/nirnanaaa/asparagus/scheduler/provider/crontab"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/etcd"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/http"
+	"github.com/nirnanaaa/asparagus/scheduler/provider/local"
 	"github.com/nirnanaaa/asparagus/toml"
 )
 
@@ -20,6 +21,7 @@ type Config struct {
 	TickDuration      toml.Duration  `toml:"tick-duration"`
 	LogTasksDetection bool           `toml:"log-task-detection"`
 	HTTPExecutor      http.Config    `toml:"executor-http"`
+	LocalExecutor     local.Config   `toml:"executor-local"`
 	CrontabSource     crontab.Config `toml:"provider-crontab"`
 	ETCDSource        etcd.Config    `toml:"provider-etcd"`
 	NumWorkers        int            `toml:"num-workers"`
@@ -31,6 +33,7 @@ func NewConfig() *Config {
 		Enabled:       true,
 		TickDuration:  toml.Duration(DefaultTickDuration * time.Second),
 		HTTPExecutor:  http.NewConfig(),
+		LocalExecutor: local.NewConfig(),
 		CrontabSource: crontab.NewConfig(),
 		ETCDSource:    etcd.NewConfig(),
 		NumWorkers:    10,

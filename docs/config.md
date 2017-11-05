@@ -83,6 +83,10 @@
     enabled = true
     source = "/etc/crontab"
 
+  # a local executor
+  [scheduler.executor-local]
+    enabled = false
+    enable-output = false
   # The ETCD source provider
   [scheduler.provider-etcd]
 

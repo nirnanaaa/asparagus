@@ -21,7 +21,7 @@ func readCrontabs(t *testing.T) map[string]*provider.Task {
 	done := make(chan bool)
 	cts.OnTaskUpdate(func(arg0 *provider.Task) error {
 		tabs[arg0.Name] = arg0
-		if len(tabs) >= 3 {
+		if len(tabs) >= 4 {
 			done <- true
 		}
 		return nil
@@ -84,5 +84,17 @@ func TestCrontabMapStr(t *testing.T) {
 	val, _ := mapping["URL"]
 	if val != "https://httpbin.org/get" {
 		t.Fatal("URL wasn't parsed correctly")
+	}
+}
+
+func TestCrontab_LocalExecutor(t *testing.T) {
+	tabs := readCrontabs(t)
+	tab := tabs["Local"]
+	mapping, ok := tab.ExecutionConfig.(string)
+	if !ok {
+		t.Fatal("mapping wasn't a string")
+	}
+	if mapping != "touch /tmp/test.file" {
+		t.Fatal("command wasn't parsed correctly")
 	}
 }

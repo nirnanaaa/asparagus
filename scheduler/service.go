@@ -5,6 +5,7 @@ import (
 
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/http"
+	"github.com/nirnanaaa/asparagus/scheduler/provider/local"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/gorhill/cronexpr"
@@ -26,13 +27,15 @@ type Service struct {
 }
 
 // NewService creates a new service
-func NewService(config *Config) *Service {
+func NewService(config *Config, logger *logrus.Logger) *Service {
 	target := map[string]provider.ExecutionProvider{
-		"http": http.NewExecutionProvider(config.HTTPExecutor),
+		"http":  http.NewExecutionProvider(config.HTTPExecutor, logger),
+		"local": local.NewExecutionProvider(config.LocalExecutor, logger),
 	}
 	return &Service{
 		Config:             config,
 		Cancel:             make(chan struct{}),
+		Logger:             logger,
 		ExecutionProviders: target,
 	}
 }

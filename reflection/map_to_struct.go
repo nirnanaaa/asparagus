@@ -32,6 +32,9 @@ func MapToStruct(t interface{}, values map[string]interface{}) error {
 					f.SetString(value.(string))
 				case bool:
 					f.SetBool(value.(string) == "true")
+				case []string:
+					input := reflect.ValueOf(value.([]string))
+					f.Set(input)
 				default:
 					return fmt.Errorf("i don't know how to parse type %T", v)
 				}

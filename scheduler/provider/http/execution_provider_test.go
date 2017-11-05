@@ -3,6 +3,7 @@ package http_test
 import (
 	"testing"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/http"
 )
 
@@ -17,7 +18,7 @@ func initConf() http.Config {
 
 func TestHTTPRequestGET(t *testing.T) {
 	cfg := initConf()
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/get",
 		"Method": "GET",
@@ -27,7 +28,7 @@ func TestHTTPRequestGET(t *testing.T) {
 }
 func TestHTTPRequestGETPostEndpoint(t *testing.T) {
 	cfg := initConf()
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/post",
 		"Method": "GET",
@@ -43,7 +44,7 @@ func TestHTTPRequestPOST(t *testing.T) {
 	cfg := initConf()
 	cfg.DebugResponse = false
 	cfg.LogHTTPStatus = false
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/post",
 		"Method": "POST",
@@ -57,7 +58,7 @@ func TestHTTPRequestPUT(t *testing.T) {
 	cfg.LogHTTPStatus = false
 	cfg.DebugResponse = false
 	cfg.LogHTTPStatus = false
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/put",
 		"Method": "PUT",
@@ -69,7 +70,7 @@ func TestHTTPRequestDELETE(t *testing.T) {
 	cfg := initConf()
 	cfg.DebugResponse = false
 	cfg.LogHTTPStatus = false
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/delete",
 		"Method": "DELETE",
@@ -80,7 +81,7 @@ func TestHTTPRequestDELETE(t *testing.T) {
 func TestHTTPRequest409(t *testing.T) {
 	cfg := initConf()
 	cfg.DebugResponse = true
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/status/409",
 		"Method": "GET",
@@ -95,7 +96,7 @@ func TestHTTPRequest409(t *testing.T) {
 
 func TestHTTPNoMap(t *testing.T) {
 	cfg := initConf()
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	err := req.Execute("https://httpbin.org/get")
 	if err == nil {
 		t.Fatal("should throw an error, because a map was required.")
@@ -108,7 +109,7 @@ func TestHTTPNoMap(t *testing.T) {
 func TestHTTPNotEnabled(t *testing.T) {
 	cfg := initConf()
 	cfg.Enabled = false
-	req := http.NewExecutionProvider(cfg)
+	req := http.NewExecutionProvider(cfg, logrus.New())
 	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/get",
 		"Method": "GET",

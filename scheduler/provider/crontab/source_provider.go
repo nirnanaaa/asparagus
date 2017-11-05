@@ -66,6 +66,15 @@ func (p *SourceProvider) Read() error {
 	}
 	return nil
 }
+func (p *SourceProvider) extractExecutorData(input string, setFn func(interface{})) {
+	if !reflection.ExprRex.MatchString(input) {
+		repl := regexp.MustCompile(`(\[|\])`)
+
+		setFn(repl.ReplaceAllString(input, ""))
+		return
+	}
+	setFn(reflection.ExprToMap(input))
+}
 
 func (p *SourceProvider) parseLine(t *provider.Task, line string) error {
 	rex := regexp.MustCompile(`(?P<schedule>(.*?))\s+(?P<config>\[(.*?)\])\s+(?P<details>\[(.*?)\])`)
@@ -75,12 +84,15 @@ func (p *SourceProvider) parseLine(t *provider.Task, line string) error {
 	t.Expression = rex.ReplaceAllString(line, "${schedule}")
 	config := rex.ReplaceAllString(line, fmt.Sprintf("${config}"))
 	executorConf := rex.ReplaceAllString(line, fmt.Sprintf("${details}"))
+	// TODO: support more types.
 	confData := reflection.ExprToMap(config)
+
 	if err := reflection.MapToStruct(t, confData); err != nil {
 		return err
 	}
-	executorConfData := reflection.ExprToMap(executorConf)
-	t.ExecutionConfig = executorConfData
+	p.extractExecutorData(executorConf, func(input interface{}) {
+		t.ExecutionConfig = input
+	})
 	return nil
 }
 

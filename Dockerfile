@@ -12,6 +12,7 @@ MAINTAINER "Florian Kasper <florian@xpandmmi.com>"
 EXPOSE 9092
 WORKDIR /app
 ENV PATH=/app:$PATH
+COPY --from=builder /etc/ssl /etc/ssl
 COPY --from=builder /go/src/github.com/nirnanaaa/asparagus/build/asparagus /app
 
 VOLUME /etc/asparagus

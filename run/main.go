@@ -104,8 +104,7 @@ func (cmd *Command) Run(args ...string) error {
 	metricx := metric.NewService(config.Metrics)
 	metricx.Logger = logger
 	cmd.Services = append(cmd.Services, metricx)
-	scheduler := scheduler.NewService(config.Scheduler)
-	scheduler.Logger = logger
+	scheduler := scheduler.NewService(config.Scheduler, logger)
 	cmd.Services = append(cmd.Services, scheduler)
 	return nil
 }
