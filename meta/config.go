@@ -18,7 +18,7 @@ func NewConfig() *Config {
 	return &Config{
 		LoggingEnabled: DefaultLoggingEnabled,
 		Debug:          false,
-		LogLevel:       "warn",
+		LogLevel:       "warning",
 	}
 }
 

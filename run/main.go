@@ -59,11 +59,11 @@ const logo = `
 
 // Run parses the config from args and runs the server.
 func (cmd *Command) Run(args ...string) error {
+
 	options, err := cmd.ParseFlags(args...)
 	if err != nil {
 		return err
 	}
-	logger := log.New()
 
 	// Print sweet asparagus logo.
 	fmt.Print(logo)
@@ -71,10 +71,6 @@ func (cmd *Command) Run(args ...string) error {
 	// Set parallelism.
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	// Mark start-up in log.
-	logger.Infof("Asparagus starting, version %s, branch %s, commit %s",
-		cmd.Version, cmd.Branch, cmd.Commit)
-	logger.Infof("Go version %s, GOMAXPROCS set to %d", runtime.Version(), runtime.GOMAXPROCS(0))
 	runtime.SetBlockProfileRate(int(1 * time.Second))
 	config, err := cmd.ParseConfig(options.GetConfigPath())
 	if err != nil {
@@ -84,7 +80,15 @@ func (cmd *Command) Run(args ...string) error {
 	if err != nil {
 		return fmt.Errorf("parse log level: %s", err)
 	}
-	log.SetLevel(lvl) //.config.Meta.LogLevel)
+	log.SetLevel(lvl)
+	logger := log.New()
+	logger.Level = lvl
+	logger.Out = os.Stdout
+
+	// Mark start-up in log.
+	logger.Infof("Asparagus starting, version %s, branch %s, commit %s",
+		cmd.Version, cmd.Branch, cmd.Commit)
+	logger.Infof("Go version %s, GOMAXPROCS set to %d", runtime.Version(), runtime.GOMAXPROCS(0))
 
 	// Apply any environment variables on top of the parsed config
 	if err := config.ApplyEnvOverrides(); err != nil {
