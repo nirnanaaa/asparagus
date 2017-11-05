@@ -32,7 +32,7 @@ docker run \
   fkconsultin/asparagus
 ```
 
-# How it works
+## How it works
 
 ```
   -------------------                                         ----------------------
@@ -51,9 +51,9 @@ docker run \
 Asparagus uses the configured `Execution Provider` to execute the actual cronjob
 on the target system.
 
-# Configuration
+## Configuration
 
-## Global configuration
+### Global configuration
 
 Configuration is done using environment variables or a central config file. You can generate a sample configuration file by using the following command:
 
