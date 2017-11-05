@@ -82,4 +82,34 @@
   [scheduler.provider-crontab]
     enabled = true
     source = "/etc/crontab"
+
+  # The ETCD source provider
+  [scheduler.provider-etcd]
+
+    # enable this provider
+    enabled = false
+
+    # Use plain old static hosts - will be disabled when discovery-enabled is set
+    registry-url = ["http://127.0.0.1:4001"]
+
+    # you can enable ETCD dns discovery:
+    #
+    # https://coreos.com/etcd/docs/latest/v2/clustering.html#dns-discovery
+    discovery-enabled = false
+
+    # And define a domain for it.
+    discovery-domain = "example.com"
+
+    # Define a TLS certificate to be used for connecting to the etcd hosts.
+    # This is only used for initializing the HTTP Transport.
+    # You can still connect to your hosts via HTTP, even if you enable this flag.
+    # DNS Discovery automatically detects the correct URLs.
+    connect-ca-cert = ""
+
+    # Where are your cronjobs located? Every cronjob has to have its own key inside
+    # this directory.
+    source-folder = "/cron/Jobs"
+
+    # leave enabled. This is the only valid option right now.
+    json-single-depth = true
 ```
