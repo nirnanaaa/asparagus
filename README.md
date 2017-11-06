@@ -24,7 +24,6 @@ We recommend using Asparagus with our pre-built Docker image. Start Asparagus us
 # Crontab Backend
 docker pull fkconsultin/asparagus
 
-# Optional: Spin up an etcd instance
 docker run \
   --rm -ti \
   -v $(pwd)/example:/app \
