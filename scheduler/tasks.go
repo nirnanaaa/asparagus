@@ -7,6 +7,7 @@ import (
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/crontab"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/etcd"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -40,6 +41,10 @@ func NewSourceConfig(config *Config) *Tasks {
 func (t *Tasks) Load() error {
 	for _, pv := range t.SourceProviders {
 		pv.OnTaskUpdate(func(tx *provider.Task) error {
+			tx.SourceProvider = pv
+			if tx.Name == "" {
+				tx.Name = uuid.NewV4().String()
+			}
 			t.Tasks[tx.Name] = tx
 			return nil
 		})

@@ -1,6 +1,8 @@
 package etcd
 
 import (
+	"time"
+
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 )
 
@@ -21,6 +23,26 @@ func NewSourceProvider(config Config) *SourceProvider {
 		TaskFlow:   make(chan provider.Task),
 		QuitChan:   make(chan bool),
 	}
+}
+
+// TaskStarted will be executed when a task is started
+func (p SourceProvider) TaskStarted(t *provider.Task) error {
+	t.Running = true
+	if err := p.Connection.WriteTask(t); err != nil {
+		return err
+	}
+	return nil
+}
+
+// TaskDone will be executed when a task is done
+func (p SourceProvider) TaskDone(t *provider.Task) error {
+	t.LastRunAt = time.Now()
+	t.Running = false
+
+	if err := p.Connection.WriteTask(t); err != nil {
+		return err
+	}
+	return nil
 }
 
 // OnTaskUpdate runs when a task gets updated

@@ -124,3 +124,31 @@ func TestETCDMapStr(t *testing.T) {
 		t.Fatal("URL wasn't parsed correctly")
 	}
 }
+
+func TestETCD_StatusUpdate(t *testing.T) {
+	cfg := etcd.NewConfig()
+	cfg.Enabled = true
+	cfg.SourceFolder = "/test1"
+	cts := etcd.NewSourceProvider(cfg)
+	cts.Connection.Connect()
+	prepareTasks(t, cts.Connection)
+	tabs := map[string]*provider.Task{}
+	done := make(chan bool)
+	cts.OnTaskUpdate(func(arg0 *provider.Task) error {
+		tabs[arg0.Name] = arg0
+		if err := cts.TaskStarted(arg0); err != nil {
+			t.Fatal(err)
+		}
+		if err := cts.TaskDone(arg0); err != nil {
+			t.Fatal(err)
+		}
+		if len(tabs) >= 3 {
+			done <- true
+		}
+		return nil
+	})
+	if err := cts.Read(); err != nil {
+		t.Fatal(err)
+	}
+	<-done
+}

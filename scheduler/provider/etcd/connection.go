@@ -80,6 +80,11 @@ func (c *Connection) WriteTask(t *provider.Task) error {
 	return nil
 }
 
+func (c *Connection) assignKeyToTask(path string, t *provider.Task) error {
+	t.Key = filepath.Base(path)
+	return nil
+}
+
 // ReadTask reads a task from etcd
 func (c *Connection) ReadTask(key string, t *provider.Task) error {
 	return c.readTaskFullDir(c.pathForKey(key), t)
@@ -92,7 +97,13 @@ func (c *Connection) readTaskFullDir(path string, t *provider.Task) error {
 		return err
 	}
 	val := node.Node.Value
-	return c.parseTask(val, t)
+	if err := c.parseTask(val, t); err != nil {
+		return err
+	}
+	if err := c.assignKeyToTask(path, t); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Connection) parseTask(input string, t *provider.Task) error {
@@ -113,6 +124,9 @@ func (c *Connection) ReadAll(tasks *[]provider.Task) error {
 	for _, node := range nodes.Node.Nodes {
 		var t provider.Task
 		if err := c.parseTask(node.Value, &t); err != nil {
+			return err
+		}
+		if err := c.assignKeyToTask(node.Key, &t); err != nil {
 			return err
 		}
 		intermediate = append(intermediate, t)

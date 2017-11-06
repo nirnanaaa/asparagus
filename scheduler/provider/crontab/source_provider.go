@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"time"
 
 	"github.com/nirnanaaa/asparagus/reflection"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
@@ -38,6 +39,19 @@ func (p SourceProvider) OnTaskUpdate(fn func(*provider.Task) error) {
 			}
 		}
 	}()
+}
+
+// TaskStarted will be executed when a task is started
+func (p SourceProvider) TaskStarted(t *provider.Task) error {
+	t.Running = true
+	return nil
+}
+
+// TaskDone will be executed when a task is done
+func (p SourceProvider) TaskDone(t *provider.Task) error {
+	t.LastRunAt = time.Now()
+	t.Running = false
+	return nil
 }
 
 // Stop quits reading tasks

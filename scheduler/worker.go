@@ -1,8 +1,6 @@
 package scheduler
 
 import (
-	"time"
-
 	"github.com/Sirupsen/logrus"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 )
@@ -48,13 +46,20 @@ func (w *Worker) Start() {
 					// TODO: Set Error
 					continue
 				}
-				work.Running = true
+				if work.SourceProvider != nil {
+					if err := work.SourceProvider.TaskStarted(work); err != nil {
+						continue
+					}
+				}
 				if err := provider.Execute(work.ExecutionConfig); err != nil {
 					logrus.WithError(err).Error("Error inside execution provider.")
 					continue
 				}
-				work.Running = false
-				work.LastRunAt = time.Now()
+				if work.SourceProvider != nil {
+					if err := work.SourceProvider.TaskDone(work); err != nil {
+						continue
+					}
+				}
 			case <-w.QuitChan:
 				return
 			}
