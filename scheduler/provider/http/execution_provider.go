@@ -5,6 +5,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/nirnanaaa/asparagus/reflection"
+	"github.com/nirnanaaa/asparagus/scheduler/provider"
 )
 
 // ExecutionProvider fills in the interface
@@ -49,7 +50,7 @@ func (p *ExecutionProvider) extractData(data *ExecutionData, msg interface{}) er
 }
 
 // Execute runs a task
-func (p *ExecutionProvider) Execute(t interface{}) error {
+func (p *ExecutionProvider) Execute(t interface{}, r *provider.Response) error {
 	if !p.Config.Enabled {
 		return fmt.Errorf("HTTP Executor is disabled. Please enable it in the configuration")
 	}
@@ -57,5 +58,5 @@ func (p *ExecutionProvider) Execute(t interface{}) error {
 	if err := p.extractData(&task, t); err != nil {
 		return err
 	}
-	return p.Executor.FromTask(task)
+	return p.Executor.FromTask(task, r)
 }

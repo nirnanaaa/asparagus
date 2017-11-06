@@ -3,9 +3,6 @@ package metric
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/nirnanaaa/asparagus/metric/adapters"
-	"github.com/nirnanaaa/asparagus/metric/adapters/cloudwatch"
-	"github.com/nirnanaaa/asparagus/metric/adapters/console"
-	"github.com/nirnanaaa/asparagus/metric/adapters/slack"
 )
 
 // Service Returns a config
@@ -16,12 +13,7 @@ type Service struct {
 }
 
 // NewService creates a new service adapter
-func NewService(config *Config) *Service {
-	reporters := []adapters.Reporter{
-		cloudwatch.NewReporter(config.Cloudwatch),
-		slack.NewReporter(config.Slack),
-		console.NewReporter(config.Console),
-	}
+func NewService(config *Config, reporters []adapters.Reporter) *Service {
 	return &Service{
 		Config:    config,
 		Reporters: reporters,

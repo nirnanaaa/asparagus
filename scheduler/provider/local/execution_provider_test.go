@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/local"
 )
 
@@ -24,7 +25,7 @@ func TestLocal_RequestTouch(t *testing.T) {
 		"Arguments": []string{
 			"/tmp/test.file",
 		},
-	}); err != nil {
+	}, &provider.Response{}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat("/tmp/test.file"); os.IsNotExist(err) {
@@ -36,7 +37,7 @@ func TestLocal_RequestTouch(t *testing.T) {
 func TestLocal_RequestString(t *testing.T) {
 	cfg := initConf()
 	req := local.NewExecutionProvider(cfg, logrus.New())
-	if err := req.Execute("touch /tmp/test.file"); err != nil {
+	if err := req.Execute("touch /tmp/test.file", &provider.Response{}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat("/tmp/test.file"); os.IsNotExist(err) {
@@ -54,7 +55,7 @@ func TestLocal_RequestNotEnabled(t *testing.T) {
 		"Arguments": []string{
 			"/tmp/test.file",
 		},
-	}); err == nil {
+	}, &provider.Response{}); err == nil {
 		t.Fatal("no error was thrown, but executor was disabled")
 	}
 }
@@ -64,7 +65,7 @@ func TestLocal_RequestNonExistingPath(t *testing.T) {
 	req := local.NewExecutionProvider(cfg, logrus.New())
 	err := req.Execute(map[string]interface{}{
 		"Command": "txbawquasiudasojdi",
-	})
+	}, &provider.Response{})
 	if err == nil {
 		t.Fatal("no error was thrown, but executor was disabled")
 	}
@@ -76,7 +77,7 @@ func TestLocal_RequestNonExistingPath(t *testing.T) {
 func TestLocal_WrongInputType(t *testing.T) {
 	cfg := initConf()
 	req := local.NewExecutionProvider(cfg, logrus.New())
-	err := req.Execute([]string{})
+	err := req.Execute([]string{}, &provider.Response{})
 	if err == nil {
 		t.Fatal("no error was thrown, but wrong input type used")
 	}
@@ -88,7 +89,7 @@ func TestLocal_WrongInputType(t *testing.T) {
 func TestLocal_WrongInputTypeString(t *testing.T) {
 	cfg := initConf()
 	req := local.NewExecutionProvider(cfg, logrus.New())
-	err := req.Execute("")
+	err := req.Execute("", &provider.Response{})
 	if err == nil {
 		t.Fatal("no error was thrown, but wrong input type used")
 	}

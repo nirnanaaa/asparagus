@@ -3,6 +3,7 @@ package scheduler
 import (
 	"time"
 
+	"github.com/nirnanaaa/asparagus/metric/adapters"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/http"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/local"
@@ -23,11 +24,12 @@ type Service struct {
 	Cancel             chan struct{}
 	Ticker             *time.Ticker
 	ExecutionProviders map[string]provider.ExecutionProvider
+	Reporters          []adapters.Reporter
 	JobDispatcher      *Dispatcher
 }
 
 // NewService creates a new service
-func NewService(config *Config, logger *logrus.Logger) *Service {
+func NewService(config *Config, logger *logrus.Logger, reporters []adapters.Reporter) *Service {
 	target := map[string]provider.ExecutionProvider{
 		"http":  http.NewExecutionProvider(config.HTTPExecutor, logger),
 		"local": local.NewExecutionProvider(config.LocalExecutor, logger),
@@ -36,6 +38,7 @@ func NewService(config *Config, logger *logrus.Logger) *Service {
 		Config:             config,
 		Cancel:             make(chan struct{}),
 		Logger:             logger,
+		Reporters:          reporters,
 		ExecutionProviders: target,
 	}
 }
@@ -46,7 +49,7 @@ func (s *Service) Start() error {
 		s.Logger.Warn("Scheduler is disabled in config.")
 		return nil
 	}
-	dispatcher := StartDispatcher(s.Config.NumWorkers, s.ExecutionProviders)
+	dispatcher := StartDispatcher(s.Config.NumWorkers, s.ExecutionProviders, s.Reporters)
 	s.JobDispatcher = dispatcher
 	s.Ticker = time.NewTicker(time.Duration(s.Config.TickDuration))
 	tasks, err := s.getJobs()

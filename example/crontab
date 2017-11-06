@@ -1,2 +1,3 @@
 * * * * * [Name="HTTP Test" Executor=http] [URL="https://httpbin.org/get" Method=get]
-* * * * * [Name="Local" Executor=local] [touch /tmp/test.file]
+* * * * * [Executor=http] [URL="https://httpbin.org/status/404" Method=get]
+@daily [Name="Local" Executor=local] [touch /tmp/test.file]

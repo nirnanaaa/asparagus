@@ -5,13 +5,14 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/nirnanaaa/asparagus/metric/adapters"
 	"github.com/nirnanaaa/asparagus/scheduler"
 )
 
 func TestService_Initialization(t *testing.T) {
 	cfg := scheduler.NewConfig()
 	cfg.CrontabSource.Enabled = false
-	srv := scheduler.NewService(cfg, logrus.New())
+	srv := scheduler.NewService(cfg, logrus.New(), []adapters.Reporter{})
 	ok := make(chan bool)
 	defer close(ok)
 	dummy := NewDummyProvider(func(arg0 interface{}) {

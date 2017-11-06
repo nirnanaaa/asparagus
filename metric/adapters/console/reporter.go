@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/nirnanaaa/asparagus/metric/adapters"
 	metrics "github.com/rcrowley/go-metrics"
 )
 
@@ -34,5 +35,15 @@ func (r *Reporter) StartReporting() error {
 
 // StopReporting stops the recording process
 func (r *Reporter) StopReporting() error {
+	return nil
+}
+
+// SupportsLogging returns if the adapter supports logging
+func (r *Reporter) SupportsLogging() bool {
+	return false
+}
+
+// LogResult logs a log line if SupportsLogging is enabled
+func (r *Reporter) LogResult(evt *adapters.LogEvent) error {
 	return nil
 }

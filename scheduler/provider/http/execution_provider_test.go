@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/http"
 )
 
@@ -22,7 +23,7 @@ func TestHTTPRequestGET(t *testing.T) {
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/get",
 		"Method": "GET",
-	}); err != nil {
+	}, &provider.Response{}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -32,7 +33,7 @@ func TestHTTPRequestGETPostEndpoint(t *testing.T) {
 	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/post",
 		"Method": "GET",
-	})
+	}, &provider.Response{})
 	if err == nil {
 		t.Fatal("Request should have failed for status code 405")
 	}
@@ -48,7 +49,7 @@ func TestHTTPRequestPOST(t *testing.T) {
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/post",
 		"Method": "POST",
-	}); err != nil {
+	}, &provider.Response{}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -62,7 +63,7 @@ func TestHTTPRequestPUT(t *testing.T) {
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/put",
 		"Method": "PUT",
-	}); err != nil {
+	}, &provider.Response{}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -74,7 +75,7 @@ func TestHTTPRequestDELETE(t *testing.T) {
 	if err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/delete",
 		"Method": "DELETE",
-	}); err != nil {
+	}, &provider.Response{}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -85,7 +86,7 @@ func TestHTTPRequest409(t *testing.T) {
 	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/status/409",
 		"Method": "GET",
-	})
+	}, &provider.Response{})
 	if err == nil {
 		t.Fatal("Request should have failed for status code 409")
 	}
@@ -97,7 +98,7 @@ func TestHTTPRequest409(t *testing.T) {
 func TestHTTPNoMap(t *testing.T) {
 	cfg := initConf()
 	req := http.NewExecutionProvider(cfg, logrus.New())
-	err := req.Execute("https://httpbin.org/get")
+	err := req.Execute("https://httpbin.org/get", &provider.Response{})
 	if err == nil {
 		t.Fatal("should throw an error, because a map was required.")
 	}
@@ -113,7 +114,7 @@ func TestHTTPNotEnabled(t *testing.T) {
 	err := req.Execute(map[string]interface{}{
 		"URL":    "https://httpbin.org/get",
 		"Method": "GET",
-	})
+	}, &provider.Response{})
 	if err == nil {
 		t.Fatal("Should not have been enabled")
 	}

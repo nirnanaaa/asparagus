@@ -3,6 +3,7 @@ package scheduler_test
 import (
 	"testing"
 
+	"github.com/nirnanaaa/asparagus/metric/adapters"
 	"github.com/nirnanaaa/asparagus/scheduler"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 )
@@ -17,7 +18,7 @@ func NewDummyProvider(callback func(interface{})) *DummyProvider {
 	}
 }
 
-func (d *DummyProvider) Execute(iface interface{}) error {
+func (d *DummyProvider) Execute(iface interface{}, response *provider.Response) error {
 	d.Callback(iface)
 	return nil
 }
@@ -36,7 +37,7 @@ func TestDispatcher_Initialization(t *testing.T) {
 		ok <- true
 	})
 	providers := map[string]provider.ExecutionProvider{"dummy": dummy}
-	dispatcher := scheduler.StartDispatcher(1, providers)
+	dispatcher := scheduler.StartDispatcher(1, providers, []adapters.Reporter{})
 	task := provider.Task{
 		ExecutionConfig: "ok",
 		Executor:        "dummy",

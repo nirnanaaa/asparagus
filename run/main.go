@@ -10,6 +10,10 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/nirnanaaa/asparagus/metric"
+	"github.com/nirnanaaa/asparagus/metric/adapters"
+	"github.com/nirnanaaa/asparagus/metric/adapters/cloudwatch"
+	"github.com/nirnanaaa/asparagus/metric/adapters/console"
+	"github.com/nirnanaaa/asparagus/metric/adapters/slack"
 	"github.com/nirnanaaa/asparagus/scheduler"
 )
 
@@ -100,11 +104,15 @@ func (cmd *Command) Run(args ...string) error {
 		return fmt.Errorf("%s. To generate a valid configuration file run `asparagus config > asparagus.generated.conf`", err)
 	}
 	flag.Parse()
-
-	metricx := metric.NewService(config.Metrics)
+	reporters := []adapters.Reporter{
+		cloudwatch.NewReporter(config.Metrics.Cloudwatch),
+		slack.NewReporter(config.Metrics.Slack),
+		console.NewReporter(config.Metrics.Console),
+	}
+	metricx := metric.NewService(config.Metrics, reporters)
 	metricx.Logger = logger
 	cmd.Services = append(cmd.Services, metricx)
-	scheduler := scheduler.NewService(config.Scheduler, logger)
+	scheduler := scheduler.NewService(config.Scheduler, logger, reporters)
 	cmd.Services = append(cmd.Services, scheduler)
 	return nil
 }

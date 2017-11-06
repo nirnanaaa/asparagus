@@ -28,6 +28,14 @@ func NewSourceProvider(config Config) *SourceProvider {
 // TaskStarted will be executed when a task is started
 func (p SourceProvider) TaskStarted(t *provider.Task) error {
 	t.Running = true
+	if !p.Config.Enabled {
+		return nil
+	}
+	if p.Connection.KAPI == nil {
+		if err := p.Connection.Connect(); err != nil {
+			return err
+		}
+	}
 	if err := p.Connection.WriteTask(t); err != nil {
 		return err
 	}
@@ -38,6 +46,14 @@ func (p SourceProvider) TaskStarted(t *provider.Task) error {
 func (p SourceProvider) TaskDone(t *provider.Task) error {
 	t.LastRunAt = time.Now()
 	t.Running = false
+	if !p.Config.Enabled {
+		return nil
+	}
+	if p.Connection.KAPI == nil {
+		if err := p.Connection.Connect(); err != nil {
+			return err
+		}
+	}
 
 	if err := p.Connection.WriteTask(t); err != nil {
 		return err
@@ -72,8 +88,10 @@ func (p *SourceProvider) Read() error {
 	if !p.Config.Enabled {
 		return nil
 	}
-	if err := p.Connection.Connect(); err != nil {
-		return err
+	if p.Connection.KAPI == nil {
+		if err := p.Connection.Connect(); err != nil {
+			return err
+		}
 	}
 	var t []provider.Task
 	if err := p.Connection.ReadAll(&t); err != nil {

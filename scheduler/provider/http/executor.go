@@ -9,6 +9,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	metrics "github.com/rcrowley/go-metrics"
 )
 
@@ -35,13 +36,15 @@ func NewExecutor(logger *logrus.Logger) Executor {
 }
 
 // FromTask runs a task definition
-func (e *Executor) FromTask(t ExecutionData) error {
-	_, err := e.Request(t.URL, t.Method)
-	return err
+func (e *Executor) FromTask(t ExecutionData, res *provider.Response) error {
+	if _, err := e.Request(t.URL, t.Method, res); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Request performs an actual http request
-func (e *Executor) Request(url, method string) (response *http.Response, erro error) {
+func (e *Executor) Request(url, method string, resq *provider.Response) (response *http.Response, erro error) {
 	e.RequestTiming.Time(func() {
 		req, err := http.NewRequest(strings.ToUpper(method), url, nil)
 		if err != nil {
@@ -73,8 +76,8 @@ func (e *Executor) Request(url, method string) (response *http.Response, erro er
 			erro = err
 			return
 		}
-		e.logHTTPStatusCode(method, req, resp)
-		e.logHTTPResponseBody(method, req, resp)
+		e.logHTTPStatusCode(method, req, resp, resq)
+		e.logHTTPResponseBody(method, req, resp, resq)
 		if resp.StatusCode >= 400 {
 			erro = fmt.Errorf("request failed with status code %d", resp.StatusCode)
 			return
@@ -97,29 +100,31 @@ func (e *Executor) logHTTPRequest(name string, req *http.Request) {
 	}
 	e.Logger.Infof("%s: Request returned: \n%s", name, dump)
 }
-func (e *Executor) logHTTPResponseBody(name string, req *http.Request, resp *http.Response) {
-	if !e.HTTPConfig.DebugResponse {
-		return
-	}
+func (e *Executor) logHTTPResponseBody(name string, req *http.Request, resp *http.Response, resq *provider.Response) {
 	defer resp.Body.Close()
 	dump, err := httputil.DumpResponse(resp, true)
 	if err != nil {
-		e.Logger.
-			Errorf("%s: Response Body dumping errored: \n%s", name, err.Error())
+		if e.HTTPConfig.DebugResponse {
+			e.Logger.
+				Errorf("%s: Response Body dumping errored: \n%s", name, err.Error())
+		}
 		return
 	}
-	e.Logger.Infof("%s: Response Body returned: \n%s", name, dump)
+	resq.Response = dump
+	if e.HTTPConfig.DebugResponse {
+		e.Logger.Infof("%s: Response Body returned: \n%s", name, dump)
+	}
 }
 
-func (e *Executor) logHTTPStatusCode(name string, req *http.Request, resp *http.Response) {
-	if !e.HTTPConfig.LogHTTPStatus {
-		return
-	}
+func (e *Executor) logHTTPStatusCode(name string, req *http.Request, resp *http.Response, resq *provider.Response) {
+	resq.StatusCode = resp.StatusCode
 	if resp.StatusCode >= 400 {
 		e.ErrorCounter.Inc(1)
 		e.Logger.Warnf("%s: request to %s failed with response code: %d", name, req.URL.String(), resp.StatusCode)
 		return
 	}
 	e.SuccessCounter.Inc(1)
-	e.Logger.Debugf("%s: request to %s succeeded with response code: %d", name, req.URL.String(), resp.StatusCode)
+	if e.HTTPConfig.LogHTTPStatus {
+		e.Logger.Debugf("%s: request to %s succeeded with response code: %d", name, req.URL.String(), resp.StatusCode)
+	}
 }

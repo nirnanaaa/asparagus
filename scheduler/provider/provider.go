@@ -15,7 +15,7 @@ type SourceProvider interface {
 
 // ExecutionProvider is used for executing cronjobs
 type ExecutionProvider interface {
-	Execute(interface{}) error
+	Execute(interface{}, *Response) error
 }
 
 // Task represents a task to be run
@@ -30,4 +30,10 @@ type Task struct {
 	SourceProvider  SourceProvider `json:"-"`
 	Executor        string         `json:"executor"`
 	ExecutionConfig interface{}    `json:"ProviderConfig"`
+}
+
+// Response contains data that executors can return
+type Response struct {
+	StatusCode int    `json:"status_code"`
+	Response   []byte `json:"response"`
 }

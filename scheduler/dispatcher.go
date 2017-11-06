@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"github.com/Sirupsen/logrus"
+	"github.com/nirnanaaa/asparagus/metric/adapters"
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 )
 
@@ -13,7 +14,7 @@ type Dispatcher struct {
 }
 
 // StartDispatcher starts the dispatching provider
-func StartDispatcher(nworkers int, eps map[string]provider.ExecutionProvider) *Dispatcher {
+func StartDispatcher(nworkers int, eps map[string]provider.ExecutionProvider, reporters []adapters.Reporter) *Dispatcher {
 	d := &Dispatcher{
 		WorkQueue:   make(chan *provider.Task, 100),
 		WorkerQueue: make(chan chan *provider.Task, nworkers),
@@ -21,7 +22,7 @@ func StartDispatcher(nworkers int, eps map[string]provider.ExecutionProvider) *D
 	}
 	logrus.Debugf("Starting %d workers", nworkers)
 	for i := 0; i < nworkers; i++ {
-		worker := NewWorker(i+1, d.WorkerQueue, eps)
+		worker := NewWorker(i+1, d.WorkerQueue, eps, reporters)
 		worker.Start()
 		d.Workers = append(d.Workers, &worker)
 	}
