@@ -103,6 +103,9 @@ func Bod(t time.Time) time.Time {
 // Tick runs for a set interval
 func (s *Service) Tick(tasks *Tasks) error {
 	for _, task := range tasks.Tasks {
+		if task.MaxRetries > 0 && task.CurrentRetryCount >= task.MaxRetries {
+			s.Logger.WithField("Task", task.Name).Debug("task has reached max retries.")
+		}
 		if task.Running {
 			continue
 		}

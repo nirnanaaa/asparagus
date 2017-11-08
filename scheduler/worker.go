@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Sirupsen/logrus"
@@ -36,6 +37,13 @@ type Worker struct {
 	Callbacks          map[string]func(*provider.Task) error
 }
 
+// SubmitErr delivers an error to a source provider
+func (w *Worker) SubmitErr(work *provider.Task, err error) {
+	if work.SourceProvider != nil {
+		work.SourceProvider.TaskError(work, err)
+	}
+}
+
 // Start function "starts" the worker by starting a goroutine, that is
 // an infinite "for-select" loop.
 func (w *Worker) Start() {
@@ -48,11 +56,12 @@ func (w *Worker) Start() {
 			case work := <-w.Work:
 				provider1, ok := w.ExecutionProviders[work.Executor]
 				if !ok {
-					// TODO: Set Error
+					w.SubmitErr(work, fmt.Errorf("provider %s not found inside list of available providers", work.Executor))
 					continue
 				}
 				if work.SourceProvider != nil {
 					if err := work.SourceProvider.TaskStarted(work); err != nil {
+						w.SubmitErr(work, err)
 						continue
 					}
 				}
@@ -61,10 +70,12 @@ func (w *Worker) Start() {
 				if err := provider1.Execute(work.ExecutionConfig, &rVal); err != nil {
 					logrus.WithError(err).Error("Error inside execution provider.")
 					w.LogReporters(err, work, start, &rVal)
+					w.SubmitErr(work, err)
 					continue
 				}
 				if work.SourceProvider != nil {
 					if err := work.SourceProvider.TaskDone(work); err != nil {
+						w.SubmitErr(work, err)
 						continue
 					}
 				}

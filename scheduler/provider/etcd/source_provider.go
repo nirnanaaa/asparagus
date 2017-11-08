@@ -25,6 +25,27 @@ func NewSourceProvider(config Config) *SourceProvider {
 	}
 }
 
+// TaskError will be called when an error occured
+func (p SourceProvider) TaskError(t *provider.Task, err error) error {
+	t.Running = false
+	t.LastError = err.Error()
+	t.CurrentRetryCount++
+	nextDuration := provider.CalculateBackoffForAttempt(float64(t.CurrentRetryCount))
+	t.LastRunAt = time.Now().Add(nextDuration)
+	if !p.Config.Enabled {
+		return nil
+	}
+	if p.Connection.KAPI == nil {
+		if err := p.Connection.Connect(); err != nil {
+			return err
+		}
+	}
+	if err := p.Connection.WriteTask(t); err != nil {
+		return err
+	}
+	return nil
+}
+
 // TaskStarted will be executed when a task is started
 func (p SourceProvider) TaskStarted(t *provider.Task) error {
 	t.Running = true
@@ -46,6 +67,8 @@ func (p SourceProvider) TaskStarted(t *provider.Task) error {
 func (p SourceProvider) TaskDone(t *provider.Task) error {
 	t.LastRunAt = time.Now()
 	t.Running = false
+	t.LastError = ""
+	t.CurrentRetryCount = 0
 	if !p.Config.Enabled {
 		return nil
 	}

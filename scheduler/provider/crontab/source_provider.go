@@ -41,6 +41,16 @@ func (p SourceProvider) OnTaskUpdate(fn func(*provider.Task) error) {
 	}()
 }
 
+// TaskError will be called when an error occured
+func (p SourceProvider) TaskError(t *provider.Task, err error) error {
+	t.Running = false
+	t.LastError = err.Error()
+	t.CurrentRetryCount++
+	nextDuration := provider.CalculateBackoffForAttempt(float64(t.CurrentRetryCount))
+	t.LastRunAt = time.Now().Add(nextDuration)
+	return nil
+}
+
 // TaskStarted will be executed when a task is started
 func (p SourceProvider) TaskStarted(t *provider.Task) error {
 	t.Running = true
@@ -49,6 +59,8 @@ func (p SourceProvider) TaskStarted(t *provider.Task) error {
 
 // TaskDone will be executed when a task is done
 func (p SourceProvider) TaskDone(t *provider.Task) error {
+	t.LastError = ""
+	t.CurrentRetryCount = 0
 	t.LastRunAt = time.Now()
 	t.Running = false
 	return nil
