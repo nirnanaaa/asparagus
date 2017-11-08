@@ -15,6 +15,7 @@ executing scheduled tasks on any environment.
 - Multiple [Execution Providers](./docs/execution/01-base.md), including HTTP and local execution.
 - Simple to install and manage, and easy to get started.
 - Monitoring and reporting is a key priority.
+- Retry and Backoff strategies.
 
 ## Installation
 
