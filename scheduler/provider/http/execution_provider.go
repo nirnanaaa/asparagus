@@ -28,8 +28,8 @@ func NewExecutionProvider(conf Config, logger *logrus.Logger) *ExecutionProvider
 
 // ExecutionData is used to determine settings for the request
 type ExecutionData struct {
-	URL    string
-	Method string
+	URL    string `json:"url"`
+	Method string `json:"method"`
 }
 
 // ParseExecutionContext parses the message

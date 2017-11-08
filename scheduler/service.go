@@ -26,6 +26,7 @@ type Service struct {
 	ExecutionProviders map[string]provider.ExecutionProvider
 	Reporters          []adapters.Reporter
 	JobDispatcher      *Dispatcher
+	TaskRunner         *Tasks
 }
 
 // NewService creates a new service
@@ -52,8 +53,7 @@ func (s *Service) Start() error {
 	dispatcher := StartDispatcher(s.Config.NumWorkers, s.ExecutionProviders, s.Reporters)
 	s.JobDispatcher = dispatcher
 	s.Ticker = time.NewTicker(time.Duration(s.Config.TickDuration))
-	tasks, err := s.getJobs()
-	if err != nil {
+	if err := s.getJobs(); err != nil {
 		return err
 	}
 	ticks := metrics.GetOrRegisterCounter(metricNameExecutions, metrics.DefaultRegistry)
@@ -61,7 +61,7 @@ func (s *Service) Start() error {
 		select {
 		case <-s.Ticker.C:
 			ticks.Inc(1)
-			s.Tick(tasks)
+			s.Tick(s.TaskRunner)
 		case <-s.Cancel:
 			return nil
 		}
@@ -80,17 +80,18 @@ func (s *Service) RegisterExecutionProvider(name string, provider provider.Execu
 	s.ExecutionProviders[name] = provider
 }
 
-func (s *Service) getJobs() (*Tasks, error) {
+func (s *Service) getJobs() error {
 	runner := NewSourceConfig(s.Config)
 
 	if err := runner.Load(); err != nil {
-		return nil, err
+		return err
 	}
+	s.TaskRunner = runner
 	if s.Config.LogTasksDetection {
 		s.Logger.Infof("Task detection is been used")
 		runner.DebugTasks(s.Logger)
 	}
-	return runner, nil
+	return nil
 }
 
 // Bod returns the beginning of the day

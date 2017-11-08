@@ -20,16 +20,15 @@ type ExecutionProvider interface {
 
 // Task represents a task to be run
 type Task struct {
-	Name            string         `json:"Name"`
-	Service         string         `json:"Service,omitempty"`
-	Running         bool           `json:"Running,omitempty"`
-	Expression      string         `json:"Expression,omitempty"`
-	LastRunAt       time.Time      `json:"LastRunAt,omitempty"`
-	AfterTask       string         `json:"AfterTask,omitempty"`
+	Name            string         `json:"name"`
+	Running         bool           `json:"is_running,omitempty"`
+	Expression      string         `json:"schedule,omitempty"`
+	LastRunAt       time.Time      `json:"last_run_at,omitempty"`
+	AfterTask       string         `json:"after_task,omitempty"`
 	Key             string         `json:"-"`
 	SourceProvider  SourceProvider `json:"-"`
 	Executor        string         `json:"executor"`
-	ExecutionConfig interface{}    `json:"ProviderConfig"`
+	ExecutionConfig interface{}    `json:"execution_config"`
 }
 
 // Response contains data that executors can return
