@@ -50,7 +50,9 @@ inside your `asparagus.conf`.
 {
   "executor": "string",
   "schedule":"cron-expr",
-  "execution_config": {},
+  "execution_config": {
+  
+  },
   "is_running": false,
   "last_run_at": "rfc3339 date format",
   "name": "optional string"
