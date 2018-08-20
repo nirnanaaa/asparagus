@@ -54,7 +54,7 @@ func (w *Worker) Start() {
 
 			select {
 			case work := <-w.Work:
-				provider1, ok := w.ExecutionProviders[work.Executor]
+				desiredProvider, ok := w.ExecutionProviders[work.Executor]
 				if !ok {
 					w.SubmitErr(work, fmt.Errorf("provider %s not found inside list of available providers", work.Executor))
 					continue
@@ -67,7 +67,7 @@ func (w *Worker) Start() {
 				}
 				start := time.Now()
 				var rVal provider.Response
-				if err := provider1.Execute(work.ExecutionConfig, &rVal); err != nil {
+				if err := desiredProvider.Execute(work.ExecutionConfig, &rVal); err != nil {
 					logrus.WithError(err).Error("Error inside execution provider.")
 					w.LogReporters(err, work, start, &rVal)
 					w.SubmitErr(work, err)

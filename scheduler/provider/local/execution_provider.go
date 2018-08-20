@@ -2,7 +2,6 @@ package local
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -65,21 +64,30 @@ func (p *ExecutionProvider) Execute(t interface{}, r *provider.Response) error {
 	}
 	var task ExecutionData
 	if err := p.extractData(&task, t); err != nil {
-		return err
+		return p.respondError(err, r)
 	}
 
 	path, err := exec.LookPath(task.Command)
 	if err != nil {
-		return err
-	}
-	cmd := exec.Command(path, task.Arguments...)
-	if p.Config.EnabledOutput {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		return p.respondError(err, r)
 	}
 
-	if err := cmd.Run(); err != nil {
-		return err
+	cmd := exec.Command(path, task.Arguments...)
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		return p.respondError(err, r)
 	}
+	r.Response = stdoutStderr
+	if cmd.ProcessState.Success() {
+		r.StatusCode = 0
+		return nil
+	}
+	r.StatusCode = 1
 	return nil
+}
+
+func (p *ExecutionProvider) respondError(err error, r *provider.Response) error {
+	r.Response = []byte(err.Error())
+
+	return err
 }
