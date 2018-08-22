@@ -1,6 +1,7 @@
 package etcd
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
@@ -23,6 +24,11 @@ func NewSourceProvider(config Config) *SourceProvider {
 		TaskFlow:   make(chan provider.Task),
 		QuitChan:   make(chan bool),
 	}
+}
+
+// String returns the Providers identity
+func (p SourceProvider) String() string {
+	return fmt.Sprintf("ETCD Provider, enabled: %t", p.Config.Enabled)
 }
 
 // TaskError will be called when an error occured

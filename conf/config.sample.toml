@@ -1,0 +1,58 @@
+[meta]
+  debug = true
+  logging-enabled = true
+  log-level = "debug"
+
+[metrics]
+  enable-metrics = false
+  [metrics.slack]
+    enabled = false
+    webhook-url = ""
+    message-format = ""
+    reporting-interval = "24h0m0s"
+  [metrics.console]
+    enabled = false
+    reporting-interval = "24h0m0s"
+  [metrics.cloudwatch]
+    enabled = false
+    webook-url = ""
+    message-format = ""
+    reporting-interval = "24h0m0s"
+    namespace = ""
+    reset-counters-after-report = false
+    [metrics.cloudwatch.static-dimensions]
+
+[scheduler]
+  enabled = true
+  tick-duration = "1s"
+  log-task-detection = false
+  num-workers = 10
+  [scheduler.executor-http]
+    enabled = true
+    debug-response = false
+    log-http-status = false
+    use-jwt-signing = true
+    jwt-issuer = "issuer"
+    jwt-expires = "10m0s"
+    jwt-subject = "0"
+    jwt-secret = ""
+  [scheduler.provider-crontab]
+    enabled = false
+    source = "/etc/asparagus/crontab"
+  [scheduler.executor-local]
+    enabled = true
+    enable-output = true
+  [scheduler.provider-etcd]
+    enabled = false
+    registry-url = ["http://127.0.0.1:4001"]
+    discovery-enabled = false
+    discovery-domain = "example.com"
+    connect-ca-cert = ""
+    source-folder = "/cron/Jobs"
+    json-single-depth = true
+  [scheduler.provider-sql]
+    enabled = false
+    uri = "/tmp/test.db"
+    driver = "sqlite3"
+    # uri = "root:password@tcp(127.0.0.1:3306)/database?parseTime=true"
+    # driver = "mysql"

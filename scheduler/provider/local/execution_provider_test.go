@@ -70,7 +70,7 @@ func TestLocal_RequestNonExistingPath(t *testing.T) {
 		t.Fatal("no error was thrown, but executor was disabled")
 	}
 	if err.Error() != "exec: \"txbawquasiudasojdi\": executable file not found in $PATH" {
-		t.Fatal("unexpected error message. Want \"exec: \"txbawquasiudasojdi\": executable file not found in $PATH\". Got \"%s\"", err.Error())
+		t.Fatalf("unexpected error message. Want \"exec: \"txbawquasiudasojdi\": executable file not found in $PATH\". Got \"%s\"", err.Error())
 	}
 }
 
@@ -82,7 +82,7 @@ func TestLocal_WrongInputType(t *testing.T) {
 		t.Fatal("no error was thrown, but wrong input type used")
 	}
 	if err.Error() != "unknown input type on executor: []string" {
-		t.Fatal("unexpected error thrown. expected unknown input type on executor: []string got %s", err.Error())
+		t.Fatalf("unexpected error thrown. expected unknown input type on executor: []string got %s", err.Error())
 	}
 }
 
@@ -94,6 +94,6 @@ func TestLocal_WrongInputTypeString(t *testing.T) {
 		t.Fatal("no error was thrown, but wrong input type used")
 	}
 	if err.Error() != "command has no parts" {
-		t.Fatal("unexpected error thrown. expected command has no parts got %s", err.Error())
+		t.Fatalf("unexpected error thrown. expected command has no parts got %s", err.Error())
 	}
 }

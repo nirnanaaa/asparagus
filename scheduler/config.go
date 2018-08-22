@@ -7,6 +7,7 @@ import (
 	"github.com/nirnanaaa/asparagus/scheduler/provider/etcd"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/http"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/local"
+	"github.com/nirnanaaa/asparagus/scheduler/provider/sql"
 	"github.com/nirnanaaa/asparagus/toml"
 )
 
@@ -24,6 +25,7 @@ type Config struct {
 	LocalExecutor     local.Config   `toml:"executor-local"`
 	CrontabSource     crontab.Config `toml:"provider-crontab"`
 	ETCDSource        etcd.Config    `toml:"provider-etcd"`
+	SQLSource         sql.Config     `toml:"provider-sql"`
 	NumWorkers        int            `toml:"num-workers"`
 }
 
@@ -36,6 +38,7 @@ func NewConfig() *Config {
 		LocalExecutor: local.NewConfig(),
 		CrontabSource: crontab.NewConfig(),
 		ETCDSource:    etcd.NewConfig(),
+		SQLSource:     sql.NewConfig(),
 		NumWorkers:    10,
 	}
 }

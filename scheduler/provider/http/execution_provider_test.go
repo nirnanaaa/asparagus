@@ -103,7 +103,7 @@ func TestHTTPNoMap(t *testing.T) {
 		t.Fatal("should throw an error, because a map was required.")
 	}
 	if err.Error() != "unknown input type on executor: string" {
-		t.Fatal("Error message isn't correct: %s", err.Error())
+		t.Fatalf("Error message isn't correct: %s", err.Error())
 	}
 }
 

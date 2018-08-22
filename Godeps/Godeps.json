@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/nirnanaaa/asparagus",
-	"GoVersion": "go1.8",
-	"GodepVersion": "v79",
+	"GoVersion": "go1.10",
+	"GodepVersion": "v80",
 	"Packages": [
 		"./..."
 	],
@@ -172,6 +172,11 @@
 			"Rev": "3d73f4b845efdf9989fffd4b4e562727744a34ba"
 		},
 		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.2.0-198-g0b58b37",
+			"Rev": "0b58b37b664c21f3010e836f1b931e1d0b0b0685"
+		},
+		{
 			"ImportPath": "github.com/gorhill/cronexpr",
 			"Comment": "1.0.0-5-gd520615",
 			"Rev": "d520615e531a6bf3fb69406b9eba718261285ec8"
@@ -180,6 +185,11 @@
 			"ImportPath": "github.com/jmespath/go-jmespath",
 			"Comment": "0.2.2-14-gbd40a43",
 			"Rev": "bd40a432e4c76585ef6b72d3fd96fb9b6dc7b68d"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.9.0-4-gb3511bf",
+			"Rev": "b3511bfdd742af558b54eb6160aca9446d762a19"
 		},
 		{
 			"ImportPath": "github.com/rcrowley/go-metrics",
@@ -195,12 +205,20 @@
 			"Rev": "708a42d246822952f38190a8d8c4e6b16a0e600c"
 		},
 		{
+			"ImportPath": "golang.org/x/crypto/ssh/terminal",
+			"Rev": "374053ea96cb300f8671b8d3b07edeeb06e203b4"
+		},
+		{
 			"ImportPath": "golang.org/x/net/context",
 			"Rev": "1c05540f6879653db88113bc4a2b70aec4bd491f"
 		},
 		{
 			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "4cd6d1a821c7175768725b55ca82f14683a29ea4"
+			"Rev": "2f1e207ee39ff70f3433e49c6eb52677a515e3b5"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/windows",
+			"Rev": "2f1e207ee39ff70f3433e49c6eb52677a515e3b5"
 		}
 	]
 }

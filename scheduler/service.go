@@ -71,6 +71,9 @@ func (s *Service) Start() error {
 // Stop cancels any executions immediately
 func (s *Service) Stop() error {
 	s.Cancel <- struct{}{}
+	for _, provider := range s.TaskRunner.SourceProviders {
+		provider.Stop()
+	}
 	// <-s.Cancel
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/nirnanaaa/asparagus/scheduler/provider"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/crontab"
 	"github.com/nirnanaaa/asparagus/scheduler/provider/etcd"
+	"github.com/nirnanaaa/asparagus/scheduler/provider/sql"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -29,8 +30,10 @@ func NewSourceConfig(config *Config) *Tasks {
 	source := []provider.SourceProvider{
 		crontab.NewSourceProvider(config.CrontabSource),
 		etcd.NewSourceProvider(config.ETCDSource),
+		sql.NewSourceProvider(config.SQLSource),
 	}
 
+	logrus.Debugf("Discovered source providers: %v", source)
 	return &Tasks{
 		Tasks:           make(map[string]*provider.Task),
 		SourceProviders: source,

@@ -27,6 +27,11 @@ func NewSourceProvider(config Config) *SourceProvider {
 	}
 }
 
+// String returns the Providers identity
+func (p SourceProvider) String() string {
+	return fmt.Sprintf("Crontab Provider, enabled: %t", p.Config.Enabled)
+}
+
 // OnTaskUpdate runs when a task gets updated
 func (p SourceProvider) OnTaskUpdate(fn func(*provider.Task) error) {
 	go func() {

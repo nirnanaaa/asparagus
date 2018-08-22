@@ -87,6 +87,19 @@
   [scheduler.executor-local]
     enabled = false
     enable-output = false
+  [scheduler.provider-sql]
+    # Required: Enable the SQL provider.
+    enabled = true
+
+    # for sqlite3
+    driver = "sqlite3"
+    uri = "/tmp/test.db"
+
+    # for mysql
+    driver = "mysql"
+
+    # make sure to suffix ?parseTime=true otherwise asparagus will complain about string to time conversion.
+    uri = "root:pass@tcp(127.0.0.1:3306)/database?parseTime=true"
   # The ETCD source provider
   [scheduler.provider-etcd]
 
