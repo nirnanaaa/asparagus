@@ -44,6 +44,8 @@ func NewSourceConfig(config *Config) *Tasks {
 func (t *Tasks) Load() error {
 	for idx, pv := range t.SourceProviders {
 		pv.OnTaskUpdate(func(tx *provider.Task) error {
+			lock.Lock()
+			defer lock.Unlock()
 			tx.SourceProvider = t.SourceProviders[idx]
 			if tx.Name == "" {
 				tx.Name = uuid.NewV4().String()
@@ -60,6 +62,8 @@ func (t *Tasks) Load() error {
 
 // GetTask returns a single task definition
 func (t *Tasks) GetTask(name string) (td *provider.Task, err error) {
+	lock.RLock()
+	defer lock.RUnlock()
 	if item, ok := t.Tasks[name]; ok {
 		return item, nil
 	}
@@ -69,6 +73,8 @@ func (t *Tasks) GetTask(name string) (td *provider.Task, err error) {
 
 // DebugTasks dumps all tasks inside the task archive
 func (t *Tasks) DebugTasks(log *logrus.Logger) {
+	lock.RLock()
+	defer lock.RUnlock()
 	for _, task := range t.Tasks {
 		log.Debugf("Task %s registered. After Task: %s. Has Execution Schedule: %s", task.Name, task.AfterTask, task.Expression)
 	}

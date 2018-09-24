@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"sync"
 	"time"
 
 	"github.com/nirnanaaa/asparagus/metric/adapters"
@@ -16,6 +17,8 @@ import (
 const (
 	metricNameExecutions = "cronjobExecutions"
 )
+
+var lock = sync.RWMutex{}
 
 // Service Returns a config
 type Service struct {
@@ -105,6 +108,8 @@ func Bod(t time.Time) time.Time {
 
 // Tick runs for a set interval
 func (s *Service) Tick(tasks *Tasks) error {
+	lock.RLock()
+	defer lock.RUnlock()
 	for _, task := range tasks.Tasks {
 		if task.MaxRetries > 0 && task.CurrentRetryCount >= task.MaxRetries {
 			s.Logger.WithField("Task", task.Name).Debug("task has reached max retries.")

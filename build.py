@@ -59,7 +59,7 @@ targets = {
 supported_builds = {
     'darwin': [ "amd64" ],
     'windows': [ "amd64" ],
-    'linux': [ "amd64", "i386", "armhf", "arm64", "armel", "static_i386", "static_amd64" ]
+    'linux': [ "amd64", "i386", "static_i386", "static_amd64" ]
 }
 
 supported_packages = {
@@ -413,7 +413,6 @@ def build(version=None,
             if "static_" in arch:
                 static = True
                 arch = arch.replace("static_", "")
-            build_command += "CGO_ENABLED=0 "
 
         # Handle variations in architecture output
         if arch == "i386" or arch == "i686":
@@ -436,6 +435,11 @@ def build(version=None,
                 return False
         if platform == 'windows':
             target = target + '.exe'
+        if platform == 'linux':
+            build_command += "CGO_ENABLED=1 "
+        else:
+            build_command += "CGO_ENABLED=0 "
+
         build_command += "go build -o {} ".format(os.path.join(outdir, target))
         if race:
             build_command += "-race "
@@ -465,6 +469,7 @@ def build(version=None,
             build_command += "-a -installsuffix cgo "
         build_command += path
         start_time = datetime.utcnow()
+        logging.info(build_command)
         run(build_command, shell=True)
         end_time = datetime.utcnow()
         logging.info("Time taken: {}s".format((end_time - start_time).total_seconds()))
