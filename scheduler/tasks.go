@@ -45,12 +45,12 @@ func (t *Tasks) Load() error {
 	for idx, pv := range t.SourceProviders {
 		pv.OnTaskUpdate(func(tx *provider.Task) error {
 			lock.Lock()
-			defer lock.Unlock()
 			tx.SourceProvider = t.SourceProviders[idx]
 			if tx.Name == "" {
 				tx.Name = uuid.NewV4().String()
 			}
 			t.Tasks[tx.Name] = tx
+			lock.Unlock()
 			return nil
 		})
 		if err := pv.Read(); err != nil {

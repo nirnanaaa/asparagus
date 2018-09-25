@@ -108,8 +108,8 @@ func Bod(t time.Time) time.Time {
 
 // Tick runs for a set interval
 func (s *Service) Tick(tasks *Tasks) error {
+	s.Logger.Info("Waiting for read lock.")
 	lock.RLock()
-	defer lock.RUnlock()
 	for _, task := range tasks.Tasks {
 		if task.MaxRetries > 0 && task.CurrentRetryCount >= task.MaxRetries {
 			s.Logger.WithField("Task", task.Name).Debug("task has reached max retries.")
@@ -145,5 +145,7 @@ func (s *Service) Tick(tasks *Tasks) error {
 		s.Logger.WithField("Task", task.Name).Info("Queueing job")
 		s.JobDispatcher.WorkQueue <- task
 	}
+	s.Logger.Info("Realease read lock.")
+	lock.RUnlock()
 	return nil
 }
