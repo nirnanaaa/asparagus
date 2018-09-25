@@ -5,7 +5,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.8
+      - image: circleci/golang:1.9
         environment:
           ASPARAGUS_ETCD_HOST: 127.0.0.1
       - image: elcolio/etcd:latest
@@ -18,8 +18,22 @@ jobs:
       - run: bash scripts/test-reporter.sh
       - store_test_results:
           path: ./c.out
+  deploy:
+    docker:
+      - image: circleci/golang:1.9
+        environment:
+          ASPARAGUS_ETCD_HOST: 127.0.0.1
+    working_directory: /go/src/github.com/nirnanaaa/asparagus
+    steps:
+      - checkout
+      - setup_remote_docker:   # (2)
+          docker_layer_caching: true # (3)
+      - run: docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+      - run: docker build -t fkconsultin/asparagus .
+      - run: docker push fkconsultin/asparagus
 workflows:
   version: 2
   build-test-and-deploy:
     jobs:
       - build
+      - deploy
